@@ -1,26 +1,88 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-bg: #ffffff;
+  --color-bg-elevated: #f6f7f8;
+  --color-border: #e3e6e8;
+  --color-fg: #101316;
+  --color-fg-muted: #5b6470;
+  --color-accent: #059669;
+  --color-accent-foreground: #ffffff;
+  --color-accent-soft: #05966915;
+}
+
+.dark {
+  --color-bg: #08090a;
+  --color-bg-elevated: #101214;
+  --color-border: #1f2327;
+  --color-fg: #e7eaed;
+  --color-fg-muted: #8b95a1;
+  --color-accent: #10b981;
+  --color-accent-foreground: #04140d;
+  --color-accent-soft: #10b98120;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--color-bg);
+  --color-background-elevated: var(--color-bg-elevated);
+  --color-border-default: var(--color-border);
+  --color-foreground: var(--color-fg);
+  --color-foreground-muted: var(--color-fg-muted);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-accent-soft: var(--color-accent-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--color-border);
+}
+
+html {
+  color-scheme: dark;
+}
+
+html:not(.dark) {
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-fg);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-foreground);
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, var(--color-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--color-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+.bg-dots {
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.terminal-glow {
+  box-shadow: 0 0 0 1px var(--color-border), 0 8px 40px -12px var(--color-accent-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

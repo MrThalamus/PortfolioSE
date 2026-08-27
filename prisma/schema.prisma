@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProjectType {
+  VIDEO
+  LIVE
+  REPO
+}
+
+model Project {
+  id           String      @id @default(cuid())
+  title        String
+  slug         String      @unique
+  summary      String
+  description  String
+  techStack    String[]
+  type         ProjectType @default(REPO)
+  videoUrl     String?
+  liveUrl      String?
+  repoUrl      String?
+  thumbnailUrl String?
+  problem      String?
+  approach     String?
+  outcome      String?
+  order        Int         @default(0)
+  published    Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([order])
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  title       String
+  eventName   String
+  year        Int
+  description String?
+  imageUrl    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([order])
+}
+
+model ExtracurricularEntry {
+  id          String   @id @default(cuid())
+  activity    String
+  role        String
+  year        String
+  description String?
+  imageUrl    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([order])
+}
+
+model VolunteerEntry {
+  id           String   @id @default(cuid())
+  organization String
+  contribution String
+  timeframe    String
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([order])
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  altText   String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
+model Profile {
+  id          String   @id @default("profile")
+  name        String
+  tagline     String
+  heroIntro   String
+  bio         String
+  email       String
+  avatarUrl   String?
+  githubUrl   String?
+  linkedinUrl String?
+  resumeUrl   String?
+  skills      Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
