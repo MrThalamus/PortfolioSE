@@ -2,18 +2,18 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { achievementSchema } from "@/lib/validations";
+import { beyondAcademicsSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
 import { extractFormValues } from "@/lib/formState";
 
-export type AchievementFormState = { error?: string; values?: Record<string, string> };
+export type BeyondAcademicsFormState = { error?: string; values?: Record<string, string> };
 
-const FIELDS = ["title", "eventName", "year", "description", "order", "imageUrl"];
+const FIELDS = ["title", "role", "year", "description", "order", "imageUrl"];
 
-export async function upsertAchievement(
-  _prevState: AchievementFormState,
+export async function upsertBeyondAcademics(
+  _prevState: BeyondAcademicsFormState,
   formData: FormData
-): Promise<AchievementFormState> {
+): Promise<BeyondAcademicsFormState> {
   const id = String(formData.get("id") ?? "");
   const file = formData.get("file");
 
@@ -22,12 +22,12 @@ export async function upsertAchievement(
     urlInput: String(formData.get("imageUrl") ?? ""),
     existingUrl: String(formData.get("existingImageUrl") ?? "") || null,
     remove: formData.get("removeImage") === "on",
-    pathPrefix: "achievements",
+    pathPrefix: "beyond-academics",
   });
 
-  const parsed = achievementSchema.safeParse({
+  const parsed = beyondAcademicsSchema.safeParse({
     title: formData.get("title"),
-    eventName: formData.get("eventName"),
+    role: formData.get("role"),
     year: formData.get("year"),
     description: formData.get("description"),
     imageUrl,
@@ -45,21 +45,25 @@ export async function upsertAchievement(
     };
   }
 
-  const data = { ...parsed.data, description: parsed.data.description || null };
+  const data = {
+    ...parsed.data,
+    role: parsed.data.role || null,
+    description: parsed.data.description || null,
+  };
 
   if (id) {
-    await prisma.achievement.update({ where: { id }, data });
+    await prisma.beyondAcademicsEntry.update({ where: { id }, data });
   } else {
-    await prisma.achievement.create({ data });
+    await prisma.beyondAcademicsEntry.create({ data });
   }
 
   revalidatePath("/");
-  revalidatePath("/admin/achievements");
+  revalidatePath("/admin/beyond-academics");
   return {};
 }
 
-export async function deleteAchievement(id: string) {
-  await prisma.achievement.delete({ where: { id } });
+export async function deleteBeyondAcademics(id: string) {
+  await prisma.beyondAcademicsEntry.delete({ where: { id } });
   revalidatePath("/");
-  revalidatePath("/admin/achievements");
+  revalidatePath("/admin/beyond-academics");
 }

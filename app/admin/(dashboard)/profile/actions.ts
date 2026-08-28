@@ -4,8 +4,22 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { profileSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
+import { extractFormValues } from "@/lib/formState";
 
-export type ProfileFormState = { error?: string; success?: boolean };
+export type ProfileFormState = { error?: string; success?: boolean; values?: Record<string, string> };
+
+const FIELDS = [
+  "name",
+  "nickname",
+  "tagline",
+  "heroIntro",
+  "bio",
+  "email",
+  "githubUrl",
+  "linkedinUrl",
+  "resumeUrl",
+  "avatarUrl",
+];
 
 export async function upsertProfile(
   _prevState: ProfileFormState,
@@ -15,7 +29,7 @@ export async function upsertProfile(
   try {
     skills = JSON.parse(String(formData.get("skillsJson") ?? "[]"));
   } catch {
-    return { error: "Skills data is malformed." };
+    return { error: "Skills data is malformed.", values: extractFormValues(formData, FIELDS) };
   }
 
   const file = formData.get("file");
@@ -42,11 +56,14 @@ export async function upsertProfile(
   });
 
   if (uploadError) {
-    return { error: uploadError };
+    return { error: uploadError, values: extractFormValues(formData, FIELDS) };
   }
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+    return {
+      error: parsed.error.issues[0]?.message ?? "Invalid input.",
+      values: extractFormValues(formData, FIELDS),
+    };
   }
 
   const data = {

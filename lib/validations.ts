@@ -35,19 +35,12 @@ export const achievementSchema = z.object({
   order: z.coerce.number().int().default(0),
 });
 
-export const extracurricularSchema = z.object({
-  activity: z.string().min(1, "Activity is required"),
-  role: z.string().min(1, "Role is required"),
+export const beyondAcademicsSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  role: z.string().optional().or(z.literal("")),
   year: z.string().min(1, "Year is required"),
   description: z.string().optional().or(z.literal("")),
   imageUrl: imageRef().nullable(),
-  order: z.coerce.number().int().default(0),
-});
-
-export const volunteerSchema = z.object({
-  organization: z.string().min(1, "Organization is required"),
-  contribution: z.string().min(1, "Contribution is required"),
-  timeframe: z.string().min(1, "Timeframe is required"),
   order: z.coerce.number().int().default(0),
 });
 
@@ -80,4 +73,13 @@ export const profileSchema = z.object({
 export const loginSchema = z.object({
   username: z.string().min(1),
   password: z.string().min(1),
+});
+
+export const contactMessageSchema = z.object({
+  name: z.string().min(1, "Name is required").max(200),
+  email: z.string().email("Enter a valid email address"),
+  message: z.string().min(1, "Message is required").max(5000),
+  // Honeypot: real visitors never see or fill this field. If it's non-empty,
+  // the submission is almost certainly a bot.
+  company: z.string().max(0, "Spam detected").optional().or(z.literal("")),
 });

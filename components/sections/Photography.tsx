@@ -6,8 +6,11 @@ import type { Photo } from "@prisma/client";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
+const INITIAL_COUNT = 3;
+
 export function Photography({ photos }: { photos: Photo[] }) {
   const [active, setActive] = useState<Photo | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   if (photos.length === 0) {
     return (
@@ -17,10 +20,13 @@ export function Photography({ photos }: { photos: Photo[] }) {
     );
   }
 
+  const visiblePhotos = expanded ? photos : photos.slice(0, INITIAL_COUNT);
+  const hasMore = photos.length > INITIAL_COUNT;
+
   return (
     <>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {photos.map((photo, i) => (
+        {visiblePhotos.map((photo, i) => (
           <FadeIn key={photo.id} delay={i * 0.04}>
             <button
               type="button"
@@ -39,6 +45,18 @@ export function Photography({ photos }: { photos: Photo[] }) {
           </FadeIn>
         ))}
       </div>
+
+      {hasMore && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="rounded-md border border-border-default px-4 py-2 font-mono text-sm font-medium transition-colors hover:border-accent hover:text-accent"
+          >
+            {expanded ? "Show less" : `See more (${photos.length - INITIAL_COUNT})`}
+          </button>
+        </div>
+      )}
 
       <ImageLightbox
         src={active?.url ?? null}

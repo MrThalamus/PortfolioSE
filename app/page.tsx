@@ -3,8 +3,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
 import { ProjectsGrid } from "@/components/sections/Projects";
 import { Achievements } from "@/components/sections/Achievements";
-import { Extracurricular } from "@/components/sections/Extracurricular";
-import { Volunteering } from "@/components/sections/Volunteering";
+import { BeyondAcademics } from "@/components/sections/BeyondAcademics";
 import { Photography } from "@/components/sections/Photography";
 import { About } from "@/components/sections/About";
 import { Contact } from "@/components/sections/Contact";
@@ -12,8 +11,7 @@ import { Section } from "@/components/ui/Section";
 import {
   getProjects,
   getAchievements,
-  getExtracurriculars,
-  getVolunteerEntries,
+  getBeyondAcademicsEntries,
   getPhotos,
   getProfile,
   type SkillGroup,
@@ -22,13 +20,12 @@ import {
 export const revalidate = 60;
 
 export default async function Home() {
-  const [profile, projects, achievements, extracurriculars, volunteering, photos] =
+  const [profile, projects, achievements, beyondAcademics, photos] =
     await Promise.all([
       getProfile(),
       getProjects(),
       getAchievements(),
-      getExtracurriculars(),
-      getVolunteerEntries(),
+      getBeyondAcademicsEntries(),
       getPhotos(),
     ]);
 
@@ -63,36 +60,26 @@ export default async function Home() {
           id="achievements"
           index="02"
           eyebrow="Recognition"
-          title="Achievements"
+          title="Achievements & Competitions"
           className="border-t border-border-default"
         >
           <Achievements achievements={achievements} />
         </Section>
 
         <Section
-          id="activities"
+          id="beyond-academics"
           index="03"
-          eyebrow="Beyond the code"
-          title="Extracurricular Activities"
+          eyebrow="Outside coursework"
+          title="Beyond Academics"
           className="border-t border-border-default"
         >
-          <Extracurricular entries={extracurriculars} />
-        </Section>
-
-        <Section
-          id="volunteering"
-          index="04"
-          eyebrow="Giving back"
-          title="Volunteering"
-          className="border-t border-border-default"
-        >
-          <Volunteering entries={volunteering} />
+          <BeyondAcademics entries={beyondAcademics} />
         </Section>
 
         <Section
           id="photography"
-          index="05"
-          eyebrow="Side project"
+          index="04"
+          eyebrow="Hobby"
           title="Photography"
           className="border-t border-border-default"
         >
@@ -101,7 +88,7 @@ export default async function Home() {
 
         <Section
           id="about"
-          index="06"
+          index="05"
           eyebrow="Background"
           title="About"
           className="border-t border-border-default"
@@ -111,7 +98,7 @@ export default async function Home() {
 
         <Section
           id="contact"
-          index="07"
+          index="06"
           eyebrow="Get in touch"
           title="Contact"
           className="border-t border-border-default"

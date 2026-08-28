@@ -9,6 +9,7 @@ export function ImageField({
   removeFieldName,
   helpText,
   round = false,
+  defaultUrlValue = "",
 }: {
   label: string;
   currentUrl?: string | null;
@@ -17,6 +18,7 @@ export function ImageField({
   removeFieldName: string;
   helpText?: string;
   round?: boolean;
+  defaultUrlValue?: string;
 }) {
   return (
     <div>
@@ -39,7 +41,13 @@ export function ImageField({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <input type="file" name="file" accept="image/*" className={input} />
-        <input type="text" name={urlFieldName} placeholder="or paste an image URL" className={input} />
+        <input
+          type="text"
+          name={urlFieldName}
+          defaultValue={defaultUrlValue}
+          placeholder="or paste an image URL"
+          className={input}
+        />
       </div>
       {helpText && <p className="mt-1 font-mono text-xs text-foreground-muted">{helpText}</p>}
     </div>

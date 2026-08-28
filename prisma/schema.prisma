@@ -50,28 +50,19 @@ model Achievement {
   @@index([order])
 }
 
-model ExtracurricularEntry {
+// Covers extracurricular activities, volunteering, and any other "outside
+// coursework" involvement — kept as one model since that line is often
+// blurry in practice (e.g. organizing a blood donation campaign).
+model BeyondAcademicsEntry {
   id          String   @id @default(cuid())
-  activity    String
-  role        String
+  title       String
+  role        String?
   year        String
   description String?
   imageUrl    String?
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  @@index([order])
-}
-
-model VolunteerEntry {
-  id           String   @id @default(cuid())
-  organization String
-  contribution String
-  timeframe    String
-  order        Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 
   @@index([order])
 }

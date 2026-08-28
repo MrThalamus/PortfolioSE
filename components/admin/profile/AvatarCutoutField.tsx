@@ -1,17 +1,38 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { label as labelClass, input } from "@/components/admin/styles";
 
 type Status = "idle" | "processing" | "error";
 
-export function AvatarCutoutField({ currentUrl }: { currentUrl?: string | null }) {
+export function AvatarCutoutField({
+  currentUrl,
+  defaultUrlValue = "",
+  resetSignal,
+}: {
+  currentUrl?: string | null;
+  defaultUrlValue?: string;
+  resetSignal?: unknown;
+}) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cutoutFileRef = useRef<File | null>(null);
   const [preview, setPreview] = useState<string | null>(currentUrl ?? null);
   const [status, setStatus] = useState<Status>("idle");
   const [progress, setProgress] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+
+  // The browser clears a file input's selection on any form submission,
+  // success or failure — independent of whether this component re-renders.
+  // If a validation error on some *other* field brings the admin back here,
+  // silently re-apply the cutout we already processed so it isn't dropped.
+  useEffect(() => {
+    if (cutoutFileRef.current && fileInputRef.current && fileInputRef.current.files?.length === 0) {
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(cutoutFileRef.current);
+      fileInputRef.current.files = dataTransfer.files;
+    }
+  }, [resetSignal]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -36,6 +57,7 @@ export function AvatarCutoutField({ currentUrl }: { currentUrl?: string | null }
       });
 
       const cutoutFile = new File([cutoutBlob], "avatar-cutout.png", { type: "image/png" });
+      cutoutFileRef.current = cutoutFile;
 
       // Swap the file input's contents with the processed cutout so the
       // existing form submission (and server-side upload handling) needs
@@ -91,7 +113,14 @@ export function AvatarCutoutField({ currentUrl }: { currentUrl?: string | null }
           disabled={status === "processing"}
           className={input}
         />
-        <input type="text" name="avatarUrl" placeholder="or paste an image URL" className={input} />
+        <input
+          key={defaultUrlValue}
+          type="text"
+          name="avatarUrl"
+          defaultValue={defaultUrlValue}
+          placeholder="or paste an image URL"
+          className={input}
+        />
       </div>
 
       {status === "processing" && (

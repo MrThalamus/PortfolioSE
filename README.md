@@ -1,6 +1,6 @@
 # Software Engineer Portfolio
 
-A dark-mode-first, database-driven portfolio site for a backend/.NET-leaning software engineer. Every piece of content — projects, achievements, extracurricular activities, volunteering, photography, and the profile/bio — is stored in Postgres and managed through a password-protected `/admin` panel. Nothing is hardcoded, so publishing new content never requires a code change or redeploy.
+A dark-mode-first, database-driven portfolio site for a backend/.NET-leaning software engineer. Every piece of content — projects, achievements & competitions, beyond-academics involvement (extracurricular/volunteering), photography, and the profile/bio — is stored in Postgres and managed through a password-protected `/admin` panel. Nothing is hardcoded, so publishing new content never requires a code change or redeploy.
 
 **Stack:** Next.js (App Router) + TypeScript, Tailwind CSS, Framer Motion, Prisma, PostgreSQL, Vercel Blob (photo uploads).
 
@@ -28,6 +28,7 @@ Fill in `.env`:
 | `ADMIN_PASSWORD_HASH` | A **bcrypt hash** of your admin password (see below) |
 | `BLOB_READ_WRITE_TOKEN` | Optional. Without it, uploaded files are written to `public/uploads` on disk — fine for local dev, but **not for Vercel production** (its filesystem is read-only/ephemeral). Get a token from [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) before deploying if you want in-app uploads to work there; pasting an image URL always works either way |
 | `NEXT_PUBLIC_SITE_URL` | Your site's public URL, used for SEO/Open Graph tags |
+| `GMAIL_USER` / `GMAIL_APP_PASSWORD` | Optional but needed for the public contact form to actually deliver email — see below. Without these, the form shows a friendly error instead of failing silently |
 
 Generate your admin password hash:
 
@@ -38,6 +39,18 @@ npm run hash-password -- "your-password-here"
 Paste the resulting hash into `ADMIN_PASSWORD_HASH`.
 
 > **Important:** bcrypt hashes are full of `$` characters, and Next.js's `.env` loader expands `$VAR`-style references. Escape every `$` as `\$` when pasting the hash into `.env`, e.g. `ADMIN_PASSWORD_HASH="\$2b\$12\$abc123..."`. Otherwise login will silently fail.
+
+### Contact form email (optional)
+
+The public Contact section sends real email via your own Gmail account (free, no third-party service):
+
+1. Turn on 2-Step Verification on the Google account you want to send from: https://myaccount.google.com/security
+2. Generate an "App Password" for it: https://myaccount.google.com/apppasswords
+3. Set `GMAIL_USER` to that Gmail address and `GMAIL_APP_PASSWORD` to the generated app password.
+
+Messages are delivered to whatever email is set on your profile in `/admin/profile` — change it there anytime, no redeploy needed. Each message's "reply-to" is set to the visitor's own address, so replying from your inbox goes straight to them. If these env vars aren't set, the form shows a clear error instead of pretending to send.
+
+To use a different provider instead of Gmail later, set `SMTP_HOST`/`SMTP_PORT`/`SMTP_USER`/`SMTP_PASS` (see `.env.example`) — those take priority over the Gmail vars.
 
 ## 3. Database setup
 
@@ -72,12 +85,14 @@ Visit [http://localhost:3000](http://localhost:3000) for the public site, and [h
 Log in with the `ADMIN_USERNAME` / password you configured. From there:
 
 - **Projects** — title, summary, description, tech stack (comma-separated), type (`Demo video` / `Live` / `Repo-only`), links, and a problem/approach/outcome breakdown shown in the project detail modal. Use `order` to control display order and `published` to hide a project without deleting it.
-- **Achievements**, **Extracurricular** — simple CRUD forms, each with an `order` field for manual sorting and an optional certificate/photo proof image (upload a file or paste a URL). Proof images show as a small thumbnail on the public site — click to view full size.
-- **Volunteering** — simple CRUD form with an `order` field for manual sorting.
+- **Achievements & Competitions** — coding/hackathon results, event names, etc.
+- **Beyond Academics** — extracurricular activities, volunteering, and anything else outside coursework, kept as one section since that line is often blurry in practice (e.g. organizing a blood donation campaign is both).
+
+Both have an `order` field for manual sorting and an optional photo (upload a file or paste a URL), shown as a full-width cover image on the card — click it for the full-size lightbox view.
 - **Photography** — either upload an image file directly (saved to `public/uploads` locally, or to Vercel Blob when `BLOB_READ_WRITE_TOKEN` is set) or paste an image URL. Alt text is required for accessibility.
 - **Profile** — your name, a nickname (used for the nav logo and the hero's code-snippet card — set this if your full name has a title/prefix like "Md." or "Dr." that shouldn't be used as your short name), tagline, hero intro, bio, contact links, resume URL, a profile photo, and a skills grid grouped by category (add/remove categories freely; list items as a comma-separated string per category). Uploading a profile photo automatically removes its background right in your browser ([`@imgly/background-removal`](https://github.com/imgly/background-removal-js) — no API key, no per-image cost, nothing sent to a third party) so the hero section can show it as a cutout over a colored backdrop. First use downloads a small ML model (a few seconds); after that it's instant. If it fails (e.g. no internet) you can still submit the original photo or paste a URL.
 
-Every optional image field (profile photo, achievement/extracurricular proof) supports uploading a file, pasting a URL instead, or checking "Remove current image" to clear it — leaving both blank on an edit keeps whatever image was already set.
+Every optional image field (profile photo, achievement/beyond-academics photo) supports uploading a file, pasting a URL instead, or checking "Remove current image" to clear it — leaving both blank on an edit keeps whatever image was already set.
 
 Every create/update/delete calls `revalidatePath` so the public site reflects your change immediately — no redeploy needed.
 
@@ -112,6 +127,7 @@ lib/
   data.ts               Read-only data-fetching helpers for public pages
   validations.ts        Zod schemas shared by every admin server action
   auth.ts               Session cookie creation/verification
+  mail.ts               SMTP transporter for the contact form (Gmail by default)
 prisma/
   schema.prisma         Data model
   seed.ts               Placeholder content seed script

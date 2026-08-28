@@ -15,12 +15,8 @@ export async function getAchievements() {
   return prisma.achievement.findMany({ orderBy: { order: "asc" } });
 }
 
-export async function getExtracurriculars() {
-  return prisma.extracurricularEntry.findMany({ orderBy: { order: "asc" } });
-}
-
-export async function getVolunteerEntries() {
-  return prisma.volunteerEntry.findMany({ orderBy: { order: "asc" } });
+export async function getBeyondAcademicsEntries() {
+  return prisma.beyondAcademicsEntry.findMany({ orderBy: { order: "asc" } });
 }
 
 export async function getPhotos() {

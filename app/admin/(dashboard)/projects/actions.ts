@@ -3,8 +3,27 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { projectSchema } from "@/lib/validations";
+import { extractFormValues } from "@/lib/formState";
 
-export type ProjectFormState = { error?: string };
+export type ProjectFormState = { error?: string; values?: Record<string, string> };
+
+const FIELDS = [
+  "title",
+  "slug",
+  "summary",
+  "description",
+  "techStack",
+  "type",
+  "videoUrl",
+  "liveUrl",
+  "repoUrl",
+  "thumbnailUrl",
+  "problem",
+  "approach",
+  "outcome",
+  "order",
+  "published",
+];
 
 function parseTechStack(raw: FormDataEntryValue | null): string[] {
   return String(raw ?? "")
@@ -38,7 +57,10 @@ export async function upsertProject(
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+    return {
+      error: parsed.error.issues[0]?.message ?? "Invalid input.",
+      values: extractFormValues(formData, FIELDS),
+    };
   }
 
   const data = {
@@ -59,7 +81,10 @@ export async function upsertProject(
       await prisma.project.create({ data });
     }
   } catch {
-    return { error: "A project with that slug already exists." };
+    return {
+      error: "A project with that slug already exists.",
+      values: extractFormValues(formData, FIELDS),
+    };
   }
 
   revalidatePath("/");

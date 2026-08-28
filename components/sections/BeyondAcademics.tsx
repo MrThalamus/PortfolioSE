@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import type { Achievement } from "@prisma/client";
+import type { BeyondAcademicsEntry } from "@prisma/client";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
-export function Achievements({ achievements }: { achievements: Achievement[] }) {
-  const [active, setActive] = useState<Achievement | null>(null);
+export function BeyondAcademics({ entries }: { entries: BeyondAcademicsEntry[] }) {
+  const [active, setActive] = useState<BeyondAcademicsEntry | null>(null);
 
-  if (achievements.length === 0) {
+  if (entries.length === 0) {
     return (
       <p className="font-mono text-sm text-foreground-muted">
-        No achievements added yet.
+        No entries added yet.
       </p>
     );
   }
@@ -20,18 +20,18 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-        {achievements.map((a, i) => (
-          <FadeIn key={a.id} delay={i * 0.05}>
+        {entries.map((entry, i) => (
+          <FadeIn key={entry.id} delay={i * 0.05}>
             <div className="flex h-full flex-col overflow-hidden rounded-lg border border-border-default bg-background-elevated">
-              {a.imageUrl && (
+              {entry.imageUrl && (
                 <button
                   type="button"
-                  onClick={() => setActive(a)}
+                  onClick={() => setActive(entry)}
                   className="group relative block aspect-[16/10] w-full overflow-hidden"
-                  aria-label={`View full proof for ${a.title}`}
+                  aria-label={`View full photo for ${entry.title}`}
                 >
                   <Image
-                    src={a.imageUrl}
+                    src={entry.imageUrl}
                     alt=""
                     fill
                     sizes="(max-width: 640px) 100vw, 50vw"
@@ -40,12 +40,12 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
                 </button>
               )}
               <div className="flex flex-1 items-start gap-4 p-5">
-                <span className="mt-0.5 shrink-0 font-mono text-xs text-accent">{a.year}</span>
+                <span className="mt-0.5 shrink-0 font-mono text-xs text-accent">{entry.year}</span>
                 <div>
-                  <h3 className="font-medium leading-snug">{a.title}</h3>
-                  <p className="mt-1 text-sm text-foreground-muted">{a.eventName}</p>
-                  {a.description && (
-                    <p className="mt-2 text-sm text-foreground-muted">{a.description}</p>
+                  <h3 className="font-medium leading-snug">{entry.title}</h3>
+                  {entry.role && <p className="mt-1 text-sm text-foreground-muted">{entry.role}</p>}
+                  {entry.description && (
+                    <p className="mt-2 text-sm text-foreground-muted">{entry.description}</p>
                   )}
                 </div>
               </div>
@@ -56,7 +56,7 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
 
       <ImageLightbox
         src={active?.imageUrl ?? null}
-        alt={active ? `Proof for ${active.title}` : ""}
+        alt={active ? active.title : ""}
         caption={active?.title}
         onClose={() => setActive(null)}
       />

@@ -9,8 +9,7 @@ const NAV_ITEMS = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/projects", label: "Projects" },
   { href: "/admin/achievements", label: "Achievements" },
-  { href: "/admin/extracurricular", label: "Extracurricular" },
-  { href: "/admin/volunteering", label: "Volunteering" },
+  { href: "/admin/beyond-academics", label: "Beyond Academics" },
   { href: "/admin/photography", label: "Photography" },
   { href: "/admin/profile", label: "Profile" },
 ];

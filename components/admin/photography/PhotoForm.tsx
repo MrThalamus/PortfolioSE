@@ -28,8 +28,12 @@ export function PhotoForm({
     wasPending.current = pending;
   }, [pending, state.error, onSaved, photo]);
 
+  // Restore what was typed if the last submission failed — see lib/formState.ts.
+  const v = state.values;
+  const formKey = v ? JSON.stringify(v) : (photo?.id ?? "new");
+
   return (
-    <form ref={formRef} action={formAction} className="space-y-4 rounded-lg border border-border-default bg-background-elevated p-5">
+    <form key={formKey} ref={formRef} action={formAction} className="space-y-4 rounded-lg border border-border-default bg-background-elevated p-5">
       {photo && <input type="hidden" name="id" value={photo.id} />}
 
       <div>
@@ -42,22 +46,22 @@ export function PhotoForm({
 
       <div>
         <label className={label} htmlFor="url">Image URL</label>
-        <input id="url" name="url" defaultValue={photo?.url} placeholder="https://…" className={input} />
+        <input id="url" name="url" defaultValue={v?.url ?? photo?.url} placeholder="https://…" className={input} />
       </div>
 
       <div>
         <label className={label} htmlFor="altText">Alt text (required for accessibility)</label>
-        <input id="altText" name="altText" defaultValue={photo?.altText} required className={input} />
+        <input id="altText" name="altText" defaultValue={v?.altText ?? photo?.altText} required className={input} />
       </div>
 
       <div>
         <label className={label} htmlFor="caption">Caption (optional)</label>
-        <input id="caption" name="caption" defaultValue={photo?.caption ?? ""} className={input} />
+        <input id="caption" name="caption" defaultValue={v?.caption ?? photo?.caption ?? ""} className={input} />
       </div>
 
       <div>
         <label className={label} htmlFor="order">Order</label>
-        <input id="order" name="order" type="number" defaultValue={photo?.order ?? 0} className={input} />
+        <input id="order" name="order" type="number" defaultValue={v?.order ?? photo?.order ?? 0} className={input} />
       </div>
 
       {state.error && <p className="font-mono text-sm text-red-500">{state.error}</p>}

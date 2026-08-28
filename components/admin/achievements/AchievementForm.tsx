@@ -29,34 +29,38 @@ export function AchievementForm({
     wasPending.current = pending;
   }, [pending, state.error, onSaved, achievement]);
 
+  // Restore what was typed if the last submission failed — see lib/formState.ts.
+  const v = state.values;
+  const formKey = v ? JSON.stringify(v) : (achievement?.id ?? "new");
+
   return (
-    <form ref={formRef} action={formAction} className="space-y-4 rounded-lg border border-border-default bg-background-elevated p-5">
+    <form key={formKey} ref={formRef} action={formAction} className="space-y-4 rounded-lg border border-border-default bg-background-elevated p-5">
       {achievement && <input type="hidden" name="id" value={achievement.id} />}
 
       <div>
         <label className={label} htmlFor="title">Title</label>
-        <input id="title" name="title" defaultValue={achievement?.title} required className={input} />
+        <input id="title" name="title" defaultValue={v?.title ?? achievement?.title} required className={input} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="sm:col-span-2">
           <label className={label} htmlFor="eventName">Event name</label>
-          <input id="eventName" name="eventName" defaultValue={achievement?.eventName} required className={input} />
+          <input id="eventName" name="eventName" defaultValue={v?.eventName ?? achievement?.eventName} required className={input} />
         </div>
         <div>
           <label className={label} htmlFor="year">Year</label>
-          <input id="year" name="year" type="number" defaultValue={achievement?.year} required className={input} />
+          <input id="year" name="year" type="number" defaultValue={v?.year ?? achievement?.year} required className={input} />
         </div>
       </div>
 
       <div>
         <label className={label} htmlFor="description">Description (optional)</label>
-        <textarea id="description" name="description" defaultValue={achievement?.description ?? ""} rows={2} className={textarea} />
+        <textarea id="description" name="description" defaultValue={v?.description ?? achievement?.description ?? ""} rows={2} className={textarea} />
       </div>
 
       <div>
         <label className={label} htmlFor="order">Order</label>
-        <input id="order" name="order" type="number" defaultValue={achievement?.order ?? 0} className={input} />
+        <input id="order" name="order" type="number" defaultValue={v?.order ?? achievement?.order ?? 0} className={input} />
       </div>
 
       <ImageField
@@ -65,6 +69,7 @@ export function AchievementForm({
         urlFieldName="imageUrl"
         existingFieldName="existingImageUrl"
         removeFieldName="removeImage"
+        defaultUrlValue={v?.imageUrl ?? ""}
       />
 
       {state.error && <p className="font-mono text-sm text-red-500">{state.error}</p>}

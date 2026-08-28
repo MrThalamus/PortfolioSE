@@ -66,6 +66,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <Script id="theme-init" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <div className="bg-ambient" aria-hidden="true" />
+        <div className="bg-noise" aria-hidden="true" />
         {children}
       </body>
     </html>

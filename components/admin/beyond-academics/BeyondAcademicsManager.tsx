@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { VolunteerEntry } from "@prisma/client";
-import { VolunteerForm } from "./VolunteerForm";
+import Image from "next/image";
+import type { BeyondAcademicsEntry } from "@prisma/client";
+import { BeyondAcademicsForm } from "./BeyondAcademicsForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
-import { deleteVolunteer } from "@/app/admin/(dashboard)/volunteering/actions";
+import { deleteBeyondAcademics } from "@/app/admin/(dashboard)/beyond-academics/actions";
 import { primaryButton, secondaryButton } from "@/components/admin/styles";
 
-export function VolunteerManager({ entries }: { entries: VolunteerEntry[] }) {
+export function BeyondAcademicsManager({ entries }: { entries: BeyondAcademicsEntry[] }) {
   const router = useRouter();
   const [showNewForm, setShowNewForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -21,7 +22,7 @@ export function VolunteerManager({ entries }: { entries: VolunteerEntry[] }) {
   return (
     <div className="space-y-6">
       {showNewForm ? (
-        <VolunteerForm onSaved={() => handleSaved(() => setShowNewForm(false))} onCancel={() => setShowNewForm(false)} />
+        <BeyondAcademicsForm onSaved={() => handleSaved(() => setShowNewForm(false))} onCancel={() => setShowNewForm(false)} />
       ) : (
         <button type="button" onClick={() => setShowNewForm(true)} className={primaryButton}>
           + Add entry
@@ -31,7 +32,7 @@ export function VolunteerManager({ entries }: { entries: VolunteerEntry[] }) {
       <div className="space-y-3">
         {entries.map((entry) =>
           editingId === entry.id ? (
-            <VolunteerForm
+            <BeyondAcademicsForm
               key={entry.id}
               entry={entry}
               onSaved={() => handleSaved(() => setEditingId(null))}
@@ -42,11 +43,19 @@ export function VolunteerManager({ entries }: { entries: VolunteerEntry[] }) {
               key={entry.id}
               className="flex items-center justify-between rounded-lg border border-border-default bg-background-elevated p-4"
             >
-              <div>
-                <p className="font-medium">{entry.organization}</p>
-                <p className="font-mono text-xs text-foreground-muted">
-                  {entry.contribution} · {entry.timeframe} · order {entry.order}
-                </p>
+              <div className="flex items-center gap-3">
+                {entry.imageUrl && (
+                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-border-default">
+                    <Image src={entry.imageUrl} alt="" fill sizes="40px" className="object-cover" />
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium">{entry.title}</p>
+                  <p className="font-mono text-xs text-foreground-muted">
+                    {entry.role ? `${entry.role} · ` : ""}
+                    {entry.year} · order {entry.order}
+                  </p>
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 <button
@@ -57,8 +66,8 @@ export function VolunteerManager({ entries }: { entries: VolunteerEntry[] }) {
                   Edit
                 </button>
                 <DeleteButton
-                  action={deleteVolunteer.bind(null, entry.id)}
-                  itemLabel={entry.organization}
+                  action={deleteBeyondAcademics.bind(null, entry.id)}
+                  itemLabel={entry.title}
                   onDeleted={() => router.refresh()}
                 />
               </div>

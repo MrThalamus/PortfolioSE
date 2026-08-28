@@ -4,8 +4,11 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { photoSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
+import { extractFormValues } from "@/lib/formState";
 
-export type PhotoFormState = { error?: string };
+export type PhotoFormState = { error?: string; values?: Record<string, string> };
+
+const FIELDS = ["url", "caption", "altText", "order"];
 
 export async function upsertPhoto(
   _prevState: PhotoFormState,
@@ -24,7 +27,7 @@ export async function upsertPhoto(
   });
 
   if (uploadError) {
-    return { error: uploadError };
+    return { error: uploadError, values: extractFormValues(formData, FIELDS) };
   }
 
   const parsed = photoSchema.safeParse({
@@ -35,7 +38,10 @@ export async function upsertPhoto(
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
+    return {
+      error: parsed.error.issues[0]?.message ?? "Invalid input.",
+      values: extractFormValues(formData, FIELDS),
+    };
   }
 
   const data = { ...parsed.data, caption: parsed.data.caption || null };

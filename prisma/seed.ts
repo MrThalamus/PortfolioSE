@@ -120,27 +120,16 @@ async function main() {
     });
   }
 
-  const extracurriculars = [
-    { activity: "Placeholder Coding Club", role: "President", year: "2023–2024", order: 0 },
-    { activity: "Placeholder Case Competition Team", role: "Team Lead", year: "2022–2023", order: 1 },
+  const beyondAcademics = [
+    { title: "Placeholder Coding Club", role: "President", year: "2023–2024", order: 0 },
+    { title: "Placeholder Nonprofit", role: "Volunteer", description: "Built internal tooling to track volunteer hours", year: "2023–Present", order: 1 },
+    { title: "Placeholder Community Org", role: "Workshop Instructor", description: "Taught intro programming workshops", year: "2022–2023", order: 2 },
   ];
-  for (const e of extracurriculars) {
-    await prisma.extracurricularEntry.upsert({
-      where: { id: `seed-extracurricular-${e.order}` },
+  for (const b of beyondAcademics) {
+    await prisma.beyondAcademicsEntry.upsert({
+      where: { id: `seed-beyond-academics-${b.order}` },
       update: {},
-      create: { id: `seed-extracurricular-${e.order}`, ...e },
-    });
-  }
-
-  const volunteering = [
-    { organization: "Placeholder Nonprofit", contribution: "Built internal tooling to track volunteer hours", timeframe: "2023–Present", order: 0 },
-    { organization: "Placeholder Community Org", contribution: "Taught intro programming workshops", timeframe: "2022–2023", order: 1 },
-  ];
-  for (const v of volunteering) {
-    await prisma.volunteerEntry.upsert({
-      where: { id: `seed-volunteer-${v.order}` },
-      update: {},
-      create: { id: `seed-volunteer-${v.order}`, ...v },
+      create: { id: `seed-beyond-academics-${b.order}`, ...b },
     });
   }
 

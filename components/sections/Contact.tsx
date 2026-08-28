@@ -1,25 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import type { Profile } from "@prisma/client";
+import { sendContactMessage, type ContactFormState } from "@/app/actions/contact";
+
+const initialState: ContactFormState = {};
 
 export function Contact({ profile }: { profile: Profile }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+  const [state, formAction, pending] = useActionState(sendContactMessage, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+  const wasPending = useRef(false);
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const subject = encodeURIComponent(`Portfolio contact from ${name || "a visitor"}`);
-    const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
-    window.location.href = `mailto:${profile.email}?subject=${subject}&body=${body}`;
-  }
+  useEffect(() => {
+    if (wasPending.current && !pending && state.success) {
+      formRef.current?.reset();
+    }
+    wasPending.current = pending;
+  }, [pending, state.success]);
+
+  // Restore what was typed if the last submission failed — see lib/formState.ts.
+  const v = state.values;
+  const formKey = v ? JSON.stringify(v) : "contact";
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
       <div>
         <p className="mb-6 max-w-md text-foreground-muted">
-          Reach out directly, or send a message below — it will open in your email client.
+          Reach out directly, or send a message below — it&apos;ll land straight in my inbox.
         </p>
         <div className="space-y-3">
           <ContactRow label="Email" value={profile.email} href={`mailto:${profile.email}`} />
@@ -35,16 +42,23 @@ export function Contact({ profile }: { profile: Profile }) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form key={formKey} ref={formRef} action={formAction} className="space-y-4">
+        {/* Honeypot — hidden from real visitors via CSS, not display:none, so
+            simple bots that skip invisible fields still fill it in. */}
+        <div className="absolute left-[-9999px]" aria-hidden="true">
+          <label htmlFor="contact-company">Company</label>
+          <input id="contact-company" name="company" tabIndex={-1} autoComplete="off" />
+        </div>
+
         <div>
           <label htmlFor="contact-name" className="mb-1 block font-mono text-xs uppercase tracking-widest text-foreground-muted">
             Name
           </label>
           <input
             id="contact-name"
+            name="name"
             required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            defaultValue={v?.name}
             className="w-full rounded-md border border-border-default bg-background-elevated px-3 py-2 text-sm outline-none focus:border-accent"
           />
         </div>
@@ -54,10 +68,10 @@ export function Contact({ profile }: { profile: Profile }) {
           </label>
           <input
             id="contact-email"
+            name="email"
             type="email"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            defaultValue={v?.email}
             className="w-full rounded-md border border-border-default bg-background-elevated px-3 py-2 text-sm outline-none focus:border-accent"
           />
         </div>
@@ -67,18 +81,25 @@ export function Contact({ profile }: { profile: Profile }) {
           </label>
           <textarea
             id="contact-message"
+            name="message"
             required
             rows={4}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            defaultValue={v?.message}
             className="w-full resize-none rounded-md border border-border-default bg-background-elevated px-3 py-2 text-sm outline-none focus:border-accent"
           />
         </div>
+
+        {state.error && <p className="font-mono text-sm text-red-500">{state.error}</p>}
+        {state.success && (
+          <p className="font-mono text-sm text-emerald-500">Message sent — thanks for reaching out!</p>
+        )}
+
         <button
           type="submit"
-          className="rounded-md bg-accent px-4 py-2 font-mono text-sm font-medium text-accent-foreground"
+          disabled={pending}
+          className="rounded-md bg-accent px-4 py-2 font-mono text-sm font-medium text-accent-foreground disabled:opacity-60"
         >
-          Send message
+          {pending ? "Sending…" : "Send message"}
         </button>
       </form>
     </div>
