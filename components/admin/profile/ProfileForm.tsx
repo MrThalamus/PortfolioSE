@@ -16,10 +16,20 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
 
   return (
     <form action={formAction} className="max-w-2xl space-y-4 rounded-lg border border-border-default bg-background-elevated p-5">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <div>
-          <label className={label} htmlFor="name">Name</label>
+          <label className={label} htmlFor="name">Full name</label>
           <input id="name" name="name" defaultValue={profile?.name} required className={input} />
+        </div>
+        <div>
+          <label className={label} htmlFor="nickname">Nickname</label>
+          <input
+            id="nickname"
+            name="nickname"
+            defaultValue={profile?.nickname ?? ""}
+            placeholder="Shown in the nav and hero code snippet"
+            className={input}
+          />
         </div>
         <div>
           <label className={label} htmlFor="email">Email</label>

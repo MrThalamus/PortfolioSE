@@ -65,6 +65,7 @@ export const skillGroupSchema = z.object({
 
 export const profileSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  nickname: z.string().optional().or(z.literal("")),
   tagline: z.string().min(1, "Tagline is required"),
   heroIntro: z.string().min(1, "Hero intro is required"),
   bio: z.string().min(1, "Bio is required"),

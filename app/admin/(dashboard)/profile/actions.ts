@@ -29,6 +29,7 @@ export async function upsertProfile(
 
   const parsed = profileSchema.safeParse({
     name: formData.get("name"),
+    nickname: formData.get("nickname"),
     tagline: formData.get("tagline"),
     heroIntro: formData.get("heroIntro"),
     bio: formData.get("bio"),
@@ -50,6 +51,7 @@ export async function upsertProfile(
 
   const data = {
     ...parsed.data,
+    nickname: parsed.data.nickname || null,
     githubUrl: parsed.data.githubUrl || null,
     linkedinUrl: parsed.data.linkedinUrl || null,
     resumeUrl: parsed.data.resumeUrl || null,

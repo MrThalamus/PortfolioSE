@@ -91,6 +91,7 @@ model Photo {
 model Profile {
   id          String   @id @default("profile")
   name        String
+  nickname    String?
   tagline     String
   heroIntro   String
   bio         String

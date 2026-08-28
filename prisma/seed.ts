@@ -9,6 +9,7 @@ async function main() {
     create: {
       id: "profile",
       name: "Your Name Placeholder",
+      nickname: "Placeholder",
       tagline: "Software Engineer — .NET / Backend Systems",
       heroIntro:
         "I build reliable backend systems and APIs with .NET, C#, and modern cloud infrastructure. Replace this intro from /admin.",

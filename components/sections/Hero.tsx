@@ -2,10 +2,11 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { HeroAvatar } from "@/components/sections/HeroAvatar";
+import { TypingName } from "@/components/sections/TypingName";
 import type { Profile } from "@prisma/client";
 
 export function Hero({ profile }: { profile: Profile }) {
-  const firstName = profile.name.split(" ")[0];
+  const shortName = profile.nickname || profile.name.split(" ")[0];
 
   return (
     <section id="top" className="relative overflow-hidden border-b border-border-default">
@@ -16,9 +17,7 @@ export function Hero({ profile }: { profile: Profile }) {
             <HeroAvatar avatarUrl={profile.avatarUrl} name={profile.name} />
             <div>
               <p className="mb-4 font-mono text-sm text-accent">$ whoami</p>
-              <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-                {profile.name}
-              </h1>
+              <TypingName name={profile.name} />
               <p className="mt-3 font-mono text-base text-foreground-muted sm:text-lg">
                 {profile.tagline}
               </p>
@@ -62,7 +61,7 @@ export function Hero({ profile }: { profile: Profile }) {
         </FadeIn>
 
         <FadeIn delay={0.15}>
-          <TerminalCard name={firstName} tagline={profile.tagline} email={profile.email} />
+          <TerminalCard name={shortName} tagline={profile.tagline} email={profile.email} />
         </FadeIn>
       </Container>
     </section>

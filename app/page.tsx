@@ -47,10 +47,11 @@ export default async function Home() {
   }
 
   const skills = (profile.skills as unknown as SkillGroup[]) ?? [];
+  const shortName = profile.nickname || profile.name.split(" ")[0];
 
   return (
     <>
-      <Nav name={profile.name} />
+      <Nav shortName={shortName} />
       <main>
         <Hero profile={profile} />
 

@@ -22,17 +22,24 @@ type Particle = {
   delay: number;
 };
 
-// Colors echo the syntax highlighting already used in the terminal card —
-// these read as tokens that drifted out of the code block.
+// A drop-shadow keeps every color readable over the photo or the circle.
+// Hues are kept away from emerald/sky/blue so nothing blends into the
+// circle backdrop (fill: emerald→sky gradient, ring: blue).
+const shadow = "[text-shadow:0_1px_4px_rgba(0,0,0,0.7)]";
+const AMBER = `text-amber-300 ${shadow}`;
+const ROSE = `text-rose-400 ${shadow}`;
+const PURPLE = `text-purple-400 ${shadow}`;
+const ORANGE = `text-orange-400 ${shadow}`;
+
 const PARTICLES: Particle[] = [
-  { symbol: ";", angle: 10, radius: 66, size: "text-lg", color: "text-foreground-muted", duration: 14, delay: 0 },
-  { symbol: "/>", angle: 55, radius: 74, size: "text-lg", color: "text-sky-400", duration: 18, delay: -2, reverse: true },
-  { symbol: "?", angle: 100, radius: 62, size: "text-xl", color: "text-amber-300", duration: 11, delay: -4 },
-  { symbol: ":", angle: 150, radius: 70, size: "text-lg", color: "text-sky-400", duration: 16, delay: -1, reverse: true },
-  { symbol: "0", angle: 200, radius: 64, size: "text-lg", color: "text-accent", duration: 13, delay: -3 },
-  { symbol: "1", angle: 250, radius: 72, size: "text-lg", color: "text-accent", duration: 20, delay: -5, reverse: true },
-  { symbol: "{", angle: 295, radius: 60, size: "text-xl", color: "text-sky-400", duration: 15, delay: -6 },
-  { symbol: "}", angle: 335, radius: 68, size: "text-xl", color: "text-sky-400", duration: 17, delay: -2.5, reverse: true },
+  { symbol: ";", angle: 10, radius: 66, size: "text-lg", color: AMBER, duration: 14, delay: 0 },
+  { symbol: "/>", angle: 55, radius: 74, size: "text-lg", color: ROSE, duration: 18, delay: -2, reverse: true },
+  { symbol: "?", angle: 100, radius: 62, size: "text-xl", color: PURPLE, duration: 11, delay: -4 },
+  { symbol: ":", angle: 150, radius: 70, size: "text-lg", color: ORANGE, duration: 16, delay: -1, reverse: true },
+  { symbol: "0", angle: 200, radius: 64, size: "text-lg", color: AMBER, duration: 13, delay: -3 },
+  { symbol: "1", angle: 250, radius: 72, size: "text-lg", color: ROSE, duration: 20, delay: -5, reverse: true },
+  { symbol: "{", angle: 295, radius: 60, size: "text-xl", color: PURPLE, duration: 15, delay: -6 },
+  { symbol: "}", angle: 335, radius: 68, size: "text-xl", color: ORANGE, duration: 17, delay: -2.5, reverse: true },
 ];
 
 export function HeroAvatar({ avatarUrl, name }: { avatarUrl?: string | null; name: string }) {
@@ -77,9 +84,9 @@ export function HeroAvatar({ avatarUrl, name }: { avatarUrl?: string | null; nam
         transition={shouldReduceMotion ? undefined : { duration: 6, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* circular backdrop with a contrasting amber edge ring */}
+      {/* circular backdrop with a contrasting blue edge ring */}
       <div
-        className="absolute bottom-0 left-1/2 h-44 w-44 -translate-x-1/2 rounded-full border-4 border-amber-400 sm:h-52 sm:w-52"
+        className="absolute bottom-0 left-1/2 h-44 w-44 -translate-x-1/2 rounded-full border-4 border-blue-500 sm:h-52 sm:w-52"
         aria-hidden
         style={{ background: "linear-gradient(135deg, var(--color-accent), #38bdf8)" }}
       />

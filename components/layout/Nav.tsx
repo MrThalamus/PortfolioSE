@@ -14,7 +14,7 @@ const LINKS = [
   { href: "#contact", label: "contact" },
 ];
 
-export function Nav({ name }: { name: string }) {
+export function Nav({ shortName }: { shortName: string }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -22,7 +22,7 @@ export function Nav({ name }: { name: string }) {
       <nav className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
         <Link href="#top" className="font-mono text-sm font-semibold tracking-tight">
           <span className="text-accent">~/</span>
-          {name.split(" ")[0].toLowerCase()}
+          {shortName.toLowerCase()}
         </Link>
 
         <ul className="hidden items-center gap-6 md:flex">
