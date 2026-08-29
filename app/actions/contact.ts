@@ -21,13 +21,14 @@ export async function sendContactMessage(
     name: formData.get("name"),
     email: formData.get("email"),
     message: formData.get("message"),
-    company: formData.get("company"),
+    _gotcha: formData.get("_gotcha"),
   });
 
   if (!parsed.success) {
     // A filled-in honeypot fails validation too — respond as if it worked
     // so bots don't learn anything, without actually sending mail.
-    if (formData.get("company")) {
+    if (formData.get("_gotcha")) {
+      console.warn("[contact] Honeypot field was filled — treating as spam and not sending. If a real visitor reports a lost message, this is why: their browser autofill likely filled it.");
       return { success: true };
     }
     return {

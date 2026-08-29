@@ -44,10 +44,18 @@ export function Contact({ profile }: { profile: Profile }) {
 
       <form key={formKey} ref={formRef} action={formAction} className="space-y-4">
         {/* Honeypot — hidden from real visitors via CSS, not display:none, so
-            simple bots that skip invisible fields still fill it in. */}
+            simple bots that skip invisible fields still fill it in. Named
+            "_gotcha" rather than something like "company"/"website" so
+            password managers and browser autofill don't recognize and fill
+            it (that happened once with a semantic name, silently discarding
+            a real visitor's message). */}
         <div className="absolute left-[-9999px]" aria-hidden="true">
-          <label htmlFor="contact-company">Company</label>
-          <input id="contact-company" name="company" tabIndex={-1} autoComplete="off" />
+          <input
+            name="_gotcha"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+          />
         </div>
 
         <div>

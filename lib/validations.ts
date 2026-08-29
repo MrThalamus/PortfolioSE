@@ -82,6 +82,10 @@ export const contactMessageSchema = z.object({
   email: z.string().email("Enter a valid email address"),
   message: z.string().min(1, "Message is required").max(5000),
   // Honeypot: real visitors never see or fill this field. If it's non-empty,
-  // the submission is almost certainly a bot.
-  company: z.string().max(0, "Spam detected").optional().or(z.literal("")),
+  // the submission is almost certainly a bot. Named "_gotcha" (not "company"/
+  // "website"/etc.) specifically to avoid password-manager and browser
+  // autofill heuristics, which target recognizable field names regardless of
+  // autocomplete="off" — a real visitor's autofill silently killed their own
+  // message this way once already.
+  _gotcha: z.string().max(0, "Spam detected").optional().or(z.literal("")),
 });
