@@ -27,7 +27,7 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
                 <button
                   type="button"
                   onClick={() => setActive(a)}
-                  className="group relative block aspect-[16/10] w-full overflow-hidden"
+                  className="group relative block h-36 w-full overflow-hidden sm:h-40"
                   aria-label={`View full proof for ${a.title}`}
                 >
                   <Image
