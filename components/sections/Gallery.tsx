@@ -41,6 +41,11 @@ export function Gallery({ images }: { images: GalleryImage[] }) {
                 sizes="(max-width: 640px) 50vw, 33vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
+              {image.caption && (
+                <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                  <p className="px-3 py-2 text-left text-xs text-white">{image.caption}</p>
+                </div>
+              )}
             </button>
           </FadeIn>
         ))}
