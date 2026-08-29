@@ -23,6 +23,10 @@ export async function getPhotos() {
   return prisma.photo.findMany({ orderBy: { order: "asc" } });
 }
 
+export async function getGalleryImages() {
+  return prisma.galleryImage.findMany({ orderBy: { order: "asc" } });
+}
+
 export async function getProfile() {
   const profile = await prisma.profile.findUnique({ where: { id: "profile" } });
   return profile;

@@ -5,6 +5,7 @@ import { ProjectsGrid } from "@/components/sections/Projects";
 import { Achievements } from "@/components/sections/Achievements";
 import { BeyondAcademics } from "@/components/sections/BeyondAcademics";
 import { Photography } from "@/components/sections/Photography";
+import { Gallery } from "@/components/sections/Gallery";
 import { About } from "@/components/sections/About";
 import { Contact } from "@/components/sections/Contact";
 import { Section } from "@/components/ui/Section";
@@ -13,6 +14,7 @@ import {
   getAchievements,
   getBeyondAcademicsEntries,
   getPhotos,
+  getGalleryImages,
   getProfile,
   type SkillGroup,
 } from "@/lib/data";
@@ -20,13 +22,14 @@ import {
 export const revalidate = 60;
 
 export default async function Home() {
-  const [profile, projects, achievements, beyondAcademics, photos] =
+  const [profile, projects, achievements, beyondAcademics, photos, galleryImages] =
     await Promise.all([
       getProfile(),
       getProjects(),
       getAchievements(),
       getBeyondAcademicsEntries(),
       getPhotos(),
+      getGalleryImages(),
     ]);
 
   if (!profile) {
@@ -87,8 +90,18 @@ export default async function Home() {
         </Section>
 
         <Section
-          id="about"
+          id="gallery"
           index="05"
+          eyebrow="Moments"
+          title="Gallery"
+          className="border-t border-border-default"
+        >
+          <Gallery images={galleryImages} />
+        </Section>
+
+        <Section
+          id="about"
+          index="06"
           eyebrow="Background"
           title="About"
           className="border-t border-border-default"
@@ -98,7 +111,7 @@ export default async function Home() {
 
         <Section
           id="contact"
-          index="06"
+          index="07"
           eyebrow="Get in touch"
           title="Contact"
           className="border-t border-border-default"

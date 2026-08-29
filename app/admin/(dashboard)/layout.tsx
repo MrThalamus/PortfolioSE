@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/admin/achievements", label: "Achievements" },
   { href: "/admin/beyond-academics", label: "Beyond Academics" },
   { href: "/admin/photography", label: "Photography" },
+  { href: "/admin/gallery", label: "Gallery" },
   { href: "/admin/profile", label: "Profile" },
 ];
 

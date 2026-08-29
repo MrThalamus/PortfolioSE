@@ -9,6 +9,7 @@ const LINKS = [
   { href: "#achievements", label: "achievements" },
   { href: "#beyond-academics", label: "beyond academics" },
   { href: "#photography", label: "photography" },
+  { href: "#gallery", label: "gallery" },
   { href: "#about", label: "about" },
   { href: "#contact", label: "contact" },
 ];

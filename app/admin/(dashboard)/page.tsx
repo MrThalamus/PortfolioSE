@@ -2,12 +2,13 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export default async function AdminOverview() {
-  const [projects, achievements, beyondAcademics, photos, profile] =
+  const [projects, achievements, beyondAcademics, photos, galleryImages, profile] =
     await Promise.all([
       prisma.project.count(),
       prisma.achievement.count(),
       prisma.beyondAcademicsEntry.count(),
       prisma.photo.count(),
+      prisma.galleryImage.count(),
       prisma.profile.findUnique({ where: { id: "profile" } }),
     ]);
 
@@ -16,6 +17,7 @@ export default async function AdminOverview() {
     { label: "Achievements", count: achievements, href: "/admin/achievements" },
     { label: "Beyond Academics", count: beyondAcademics, href: "/admin/beyond-academics" },
     { label: "Photography", count: photos, href: "/admin/photography" },
+    { label: "Gallery", count: galleryImages, href: "/admin/gallery" },
   ];
 
   return (

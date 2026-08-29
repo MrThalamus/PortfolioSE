@@ -51,6 +51,8 @@ export const photoSchema = z.object({
   order: z.coerce.number().int().default(0),
 });
 
+export const galleryImageSchema = photoSchema;
+
 export const skillGroupSchema = z.object({
   category: z.string().min(1),
   items: z.array(z.string().min(1)),

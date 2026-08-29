@@ -79,6 +79,18 @@ model Photo {
   @@index([order])
 }
 
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  altText   String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+}
+
 model Profile {
   id          String   @id @default("profile")
   name        String
