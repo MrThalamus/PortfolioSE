@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { logout } from "../logout-action";
+import { MobileNav } from "@/components/admin/MobileNav";
 
 // Admin pages read data directly through Prisma and must always reflect the
 // latest writes after a create/update/delete — never serve a cached RSC payload here.
@@ -35,7 +36,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </aside>
 
         <div className="min-w-0 flex-1">
-          <header className="flex items-center justify-between border-b border-border-default px-6 py-4">
+          <MobileNav items={NAV_ITEMS} />
+          <header className="flex items-center justify-between border-b border-border-default px-4 py-4 sm:px-6">
             <Link href="/" target="_blank" className="font-mono text-xs text-foreground-muted hover:text-accent">
               View site ↗
             </Link>
@@ -48,7 +50,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </button>
             </form>
           </header>
-          <main className="px-6 py-8">{children}</main>
+          <main className="px-4 py-8 sm:px-6">{children}</main>
         </div>
       </div>
     </div>

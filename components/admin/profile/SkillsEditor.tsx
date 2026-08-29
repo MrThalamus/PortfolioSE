@@ -57,12 +57,12 @@ export function SkillsEditor({ initialSkills }: { initialSkills: SkillGroup[] })
       <div className="space-y-4">
         {rows.map((row, i) => (
           <div key={i} className="rounded-md border border-border-default p-3">
-            <div className="mb-3 flex gap-3">
+            <div className="mb-3 flex flex-wrap gap-3">
               <input
                 value={row.category}
                 onChange={(e) => updateCategory(i, e.target.value)}
                 placeholder="Category (e.g. Languages)"
-                className={input + " w-48 shrink-0"}
+                className={input + " w-full min-w-0 sm:w-48 sm:shrink-0"}
               />
               <button type="button" onClick={() => removeRow(i)} className={dangerLink + " ml-auto shrink-0"}>
                 Remove category
