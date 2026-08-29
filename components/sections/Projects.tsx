@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Project } from "@prisma/client";
 import { Badge } from "@/components/ui/Badge";
@@ -37,19 +38,32 @@ export function ProjectsGrid({ projects }: { projects: Project[] }) {
             <button
               type="button"
               onClick={() => setActive(project)}
-              className="group flex h-full w-full flex-col rounded-lg border border-border-default bg-background-elevated p-5 text-left transition-all hover:-translate-y-1 hover:border-accent/60"
+              className="group flex h-full w-full flex-col overflow-hidden rounded-lg border border-border-default bg-background-elevated text-left transition-all hover:-translate-y-1 hover:border-accent/60"
             >
-              <div className="mb-3 flex items-start justify-between gap-3">
-                <h3 className="font-semibold tracking-tight group-hover:text-accent">
-                  {project.title}
-                </h3>
-                <Badge variant={TYPE_VARIANT[project.type]}>{TYPE_LABEL[project.type]}</Badge>
-              </div>
-              <p className="mb-4 flex-1 text-sm text-foreground-muted">{project.summary}</p>
-              <div className="flex flex-wrap gap-2">
-                {project.techStack.map((tech) => (
-                  <Badge key={tech}>{tech}</Badge>
-                ))}
+              {project.thumbnailUrl && (
+                <div className="relative aspect-video w-full border-b border-border-default">
+                  <Image
+                    src={project.thumbnailUrl}
+                    alt=""
+                    fill
+                    sizes="(min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex flex-1 flex-col p-5">
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <h3 className="font-semibold tracking-tight group-hover:text-accent">
+                    {project.title}
+                  </h3>
+                  <Badge variant={TYPE_VARIANT[project.type]}>{TYPE_LABEL[project.type]}</Badge>
+                </div>
+                <p className="mb-4 flex-1 text-sm text-foreground-muted">{project.summary}</p>
+                <div className="flex flex-wrap gap-2">
+                  {project.techStack.map((tech) => (
+                    <Badge key={tech}>{tech}</Badge>
+                  ))}
+                </div>
               </div>
             </button>
           </FadeIn>
@@ -109,6 +123,12 @@ function ProjectModal({ project, onClose }: { project: Project; onClose: () => v
             </Badge>
           ))}
         </div>
+
+        {project.thumbnailUrl && (
+          <div className="relative mb-5 aspect-video overflow-hidden rounded-md border border-border-default">
+            <Image src={project.thumbnailUrl} alt="" fill sizes="(min-width: 640px) 640px, 100vw" className="object-cover" />
+          </div>
+        )}
 
         {project.type === "VIDEO" && project.videoUrl && (
           <div className="mb-5 aspect-video overflow-hidden rounded-md border border-border-default">
