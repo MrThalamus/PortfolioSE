@@ -11,7 +11,8 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
-    "hash-password": "tsx scripts/hash-password.ts"
+    "hash-password": "tsx scripts/hash-password.ts",
+    "deploy": "node scripts/deploy.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
