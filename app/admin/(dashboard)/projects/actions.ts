@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { projectSchema } from "@/lib/validations";
+import { resolveImageUpload } from "@/lib/upload";
 import { extractFormValues } from "@/lib/formState";
 
 export type ProjectFormState = { error?: string; values?: Record<string, string> };
@@ -38,6 +39,14 @@ export async function upsertProject(
 ): Promise<ProjectFormState> {
   const id = String(formData.get("id") ?? "");
 
+  const { url: thumbnailUrl, error: uploadError } = await resolveImageUpload({
+    file: null,
+    urlInput: String(formData.get("thumbnailUrl") ?? ""),
+    existingUrl: String(formData.get("existingThumbnailUrl") ?? "") || null,
+    remove: formData.get("removeThumbnail") === "on",
+    pathPrefix: "projects",
+  });
+
   const parsed = projectSchema.safeParse({
     title: formData.get("title"),
     slug: formData.get("slug"),
@@ -48,13 +57,17 @@ export async function upsertProject(
     videoUrl: formData.get("videoUrl"),
     liveUrl: formData.get("liveUrl"),
     repoUrl: formData.get("repoUrl"),
-    thumbnailUrl: formData.get("thumbnailUrl"),
+    thumbnailUrl: thumbnailUrl ?? "",
     problem: formData.get("problem"),
     approach: formData.get("approach"),
     outcome: formData.get("outcome"),
     order: formData.get("order"),
     published: formData.get("published") === "on",
   });
+
+  if (uploadError) {
+    return { error: uploadError, values: extractFormValues(formData, FIELDS) };
+  }
 
   if (!parsed.success) {
     return {

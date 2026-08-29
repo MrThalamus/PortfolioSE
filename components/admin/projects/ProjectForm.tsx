@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef } from "react";
 import type { Project } from "@prisma/client";
 import { upsertProject, type ProjectFormState } from "@/app/admin/(dashboard)/projects/actions";
 import { label, input, textarea, primaryButton, secondaryButton } from "@/components/admin/styles";
+import { ImageField } from "@/components/admin/ImageField";
 
 const initialState: ProjectFormState = {};
 
@@ -116,11 +117,17 @@ export function ProjectForm({
           <label className={label} htmlFor="repoUrl">Repo URL</label>
           <input id="repoUrl" name="repoUrl" defaultValue={v?.repoUrl ?? project?.repoUrl ?? ""} className={input} />
         </div>
-        <div>
-          <label className={label} htmlFor="thumbnailUrl">Thumbnail URL</label>
-          <input id="thumbnailUrl" name="thumbnailUrl" defaultValue={v?.thumbnailUrl ?? project?.thumbnailUrl ?? ""} className={input} />
-        </div>
       </div>
+
+      <ImageField
+        label="Thumbnail (screenshot of the site/product)"
+        currentUrl={project?.thumbnailUrl}
+        urlFieldName="thumbnailUrl"
+        existingFieldName="existingThumbnailUrl"
+        removeFieldName="removeThumbnail"
+        defaultUrlValue={v?.thumbnailUrl ?? ""}
+        pathPrefix="projects"
+      />
 
       <label className="flex items-center gap-2 font-mono text-xs text-foreground-muted">
         <input type="checkbox" name="published" defaultChecked={v ? v.published === "on" : (project?.published ?? true)} />
