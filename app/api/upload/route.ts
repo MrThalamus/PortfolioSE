@@ -14,7 +14,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async () => ({
-        allowedContentTypes: ["image/*"],
+        allowedContentTypes: ["image/*", "application/pdf"],
         addRandomSuffix: true,
       }),
       onUploadCompleted: async () => {},

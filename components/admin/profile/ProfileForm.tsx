@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import type { Profile } from "@prisma/client";
 import { upsertProfile, type ProfileFormState } from "@/app/admin/(dashboard)/profile/actions";
 import { SkillsEditor } from "./SkillsEditor";
 import type { SkillGroup } from "@/lib/data";
 import { label, input, textarea, primaryButton } from "@/components/admin/styles";
 import { AvatarCutoutField } from "./AvatarCutoutField";
+import { uploadFileToBlob } from "@/lib/blobUpload";
 
 const initialState: ProfileFormState = {};
 
@@ -20,6 +21,26 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
   // the whole form) so SkillsEditor, which holds its own state, doesn't get
   // remounted and lose an in-progress edit.
   const v = state.values;
+  const [resumeUrl, setResumeUrl] = useState(v?.resumeUrl ?? profile?.resumeUrl ?? "");
+  const [resumeUploading, setResumeUploading] = useState(false);
+  const [resumeError, setResumeError] = useState<string | null>(null);
+
+  async function handleResumeFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setResumeUploading(true);
+    setResumeError(null);
+    try {
+      const uploadedUrl = await uploadFileToBlob(file, "resume");
+      setResumeUrl(uploadedUrl);
+    } catch {
+      setResumeError("Upload failed. Try again, or paste a URL instead.");
+    } finally {
+      setResumeUploading(false);
+      e.target.value = "";
+    }
+  }
 
   return (
     <form action={formAction} className="max-w-2xl space-y-4 rounded-lg border border-border-default bg-background-elevated p-5">
@@ -78,7 +99,7 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
         <textarea key={v?.bio ?? ""} id="bio" name="bio" defaultValue={v?.bio ?? profile?.bio} required rows={5} className={textarea} />
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className={label} htmlFor="githubUrl">GitHub URL</label>
           <input key={v?.githubUrl ?? ""} id="githubUrl" name="githubUrl" defaultValue={v?.githubUrl ?? profile?.githubUrl ?? ""} className={input} />
@@ -87,10 +108,36 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
           <label className={label} htmlFor="linkedinUrl">LinkedIn URL</label>
           <input key={v?.linkedinUrl ?? ""} id="linkedinUrl" name="linkedinUrl" defaultValue={v?.linkedinUrl ?? profile?.linkedinUrl ?? ""} className={input} />
         </div>
-        <div>
-          <label className={label} htmlFor="resumeUrl">Resume URL</label>
-          <input key={v?.resumeUrl ?? ""} id="resumeUrl" name="resumeUrl" defaultValue={v?.resumeUrl ?? profile?.resumeUrl ?? ""} className={input} />
+      </div>
+
+      <div>
+        <label className={label}>Resume (PDF)</label>
+        {resumeUrl && (
+          <p className="mb-2">
+            <a href={resumeUrl} target="_blank" rel="noreferrer" className="font-mono text-xs text-accent hover:underline">
+              View current resume ↗
+            </a>
+          </p>
+        )}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={handleResumeFileChange}
+            disabled={resumeUploading}
+            className={input}
+          />
+          <input
+            id="resumeUrl"
+            name="resumeUrl"
+            value={resumeUrl}
+            onChange={(e) => setResumeUrl(e.target.value)}
+            placeholder="or paste a URL"
+            className={input}
+          />
         </div>
+        {resumeUploading && <p className="mt-1 font-mono text-xs text-accent">Uploading…</p>}
+        {resumeError && <p className="mt-1 font-mono text-xs text-red-500">{resumeError}</p>}
       </div>
 
       <SkillsEditor initialSkills={skills} />
