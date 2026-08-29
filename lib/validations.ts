@@ -35,6 +35,14 @@ export const achievementSchema = z.object({
   order: z.coerce.number().int().default(0),
 });
 
+export const certificateSchema = z.object({
+  name: z.string().min(1, "Certificate name is required"),
+  issuingOrganization: z.string().min(1, "Issuing organization is required"),
+  dateEarned: z.coerce.date({ message: "A valid date is required" }),
+  credentialUrl: z.string().url().optional().or(z.literal("")),
+  order: z.coerce.number().int().default(0),
+});
+
 export const beyondAcademicsSchema = z.object({
   title: z.string().min(1, "Title is required"),
   role: z.string().optional().or(z.literal("")),

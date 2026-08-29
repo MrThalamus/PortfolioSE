@@ -50,6 +50,19 @@ model Achievement {
   @@index([order])
 }
 
+model Certificate {
+  id                  String   @id @default(cuid())
+  name                String
+  issuingOrganization String
+  dateEarned          DateTime
+  credentialUrl       String?
+  order               Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([order])
+}
+
 // Covers extracurricular activities, volunteering, and any other "outside
 // coursework" involvement — kept as one model since that line is often
 // blurry in practice (e.g. organizing a blood donation campaign).

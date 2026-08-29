@@ -19,7 +19,8 @@ const NAV_ITEMS: NavItem[] = [
   {
     label: "journey",
     children: [
-      { href: "#achievements", label: "achievements" },
+      { href: "#achievements", label: "milestones" },
+      { href: "#certificates", label: "certificates" },
       { href: "#beyond-academics", label: "beyond academics" },
       { href: "#involvement", label: "involvement" },
     ],

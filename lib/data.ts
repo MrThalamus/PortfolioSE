@@ -19,6 +19,10 @@ export async function getBeyondAcademicsEntries() {
   return prisma.beyondAcademicsEntry.findMany({ orderBy: { order: "asc" } });
 }
 
+export async function getCertificates() {
+  return prisma.certificate.findMany({ orderBy: { order: "asc" } });
+}
+
 export async function getPhotos() {
   return prisma.photo.findMany({ orderBy: { order: "asc" } });
 }

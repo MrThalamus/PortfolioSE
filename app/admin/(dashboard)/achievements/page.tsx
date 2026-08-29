@@ -6,7 +6,7 @@ export default async function AdminAchievementsPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-semibold">Achievements</h1>
+      <h1 className="mb-1 text-xl font-semibold">Milestones & Achievements</h1>
       <p className="mb-6 font-mono text-sm text-foreground-muted">
         Medals, competition results, and recognitions.
       </p>
