@@ -6,8 +6,11 @@ import type { BeyondAcademicsEntry } from "@prisma/client";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
+const INITIAL_COUNT = 3;
+
 export function BeyondAcademics({ entries }: { entries: BeyondAcademicsEntry[] }) {
   const [active, setActive] = useState<BeyondAcademicsEntry | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   if (entries.length === 0) {
     return (
@@ -17,10 +20,13 @@ export function BeyondAcademics({ entries }: { entries: BeyondAcademicsEntry[] }
     );
   }
 
+  const visible = expanded ? entries : entries.slice(0, INITIAL_COUNT);
+  const hasMore = entries.length > INITIAL_COUNT;
+
   return (
     <>
       <div className="grid gap-4 sm:grid-cols-2">
-        {entries.map((entry, i) => (
+        {visible.map((entry, i) => (
           <FadeIn key={entry.id} delay={i * 0.05}>
             <div className="flex h-full flex-col overflow-hidden rounded-lg border border-border-default bg-background-elevated">
               {entry.imageUrl && (
@@ -53,6 +59,18 @@ export function BeyondAcademics({ entries }: { entries: BeyondAcademicsEntry[] }
           </FadeIn>
         ))}
       </div>
+
+      {hasMore && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="rounded-md border border-border-default px-4 py-2 font-mono text-sm font-medium transition-colors hover:border-accent hover:text-accent"
+          >
+            {expanded ? "Show less" : `See more (${entries.length - INITIAL_COUNT})`}
+          </button>
+        </div>
+      )}
 
       <ImageLightbox
         src={active?.imageUrl ?? null}

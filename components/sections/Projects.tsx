@@ -19,8 +19,11 @@ const TYPE_VARIANT: Record<Project["type"], "video" | "live" | "repo"> = {
   REPO: "repo",
 };
 
+const INITIAL_COUNT = 3;
+
 export function ProjectsGrid({ projects }: { projects: Project[] }) {
   const [active, setActive] = useState<Project | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   if (projects.length === 0) {
     return (
@@ -30,10 +33,13 @@ export function ProjectsGrid({ projects }: { projects: Project[] }) {
     );
   }
 
+  const visible = expanded ? projects : projects.slice(0, INITIAL_COUNT);
+  const hasMore = projects.length > INITIAL_COUNT;
+
   return (
     <>
       <div className="grid gap-5 sm:grid-cols-2">
-        {projects.map((project, i) => (
+        {visible.map((project, i) => (
           <FadeIn key={project.id} delay={i * 0.05}>
             <button
               type="button"
@@ -69,6 +75,18 @@ export function ProjectsGrid({ projects }: { projects: Project[] }) {
           </FadeIn>
         ))}
       </div>
+
+      {hasMore && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="rounded-md border border-border-default px-4 py-2 font-mono text-sm font-medium transition-colors hover:border-accent hover:text-accent"
+          >
+            {expanded ? "Show less" : `See more (${projects.length - INITIAL_COUNT})`}
+          </button>
+        </div>
+      )}
 
       <AnimatePresence>
         {active && <ProjectModal project={active} onClose={() => setActive(null)} />}
