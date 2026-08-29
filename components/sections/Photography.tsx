@@ -6,7 +6,7 @@ import type { Photo } from "@prisma/client";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
-const INITIAL_COUNT = 3;
+const INITIAL_COUNT = 6;
 
 export function Photography({ photos }: { photos: Photo[] }) {
   const [active, setActive] = useState<Photo | null>(null);

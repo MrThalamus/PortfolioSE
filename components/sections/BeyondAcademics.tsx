@@ -6,7 +6,7 @@ import type { BeyondAcademicsEntry } from "@prisma/client";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
-const INITIAL_COUNT = 3;
+const INITIAL_COUNT = 4;
 
 export function BeyondAcademics({ entries }: { entries: BeyondAcademicsEntry[] }) {
   const [active, setActive] = useState<BeyondAcademicsEntry | null>(null);

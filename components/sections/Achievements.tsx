@@ -6,7 +6,7 @@ import type { Achievement } from "@prisma/client";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
-const INITIAL_COUNT = 3;
+const INITIAL_COUNT = 4;
 
 export function Achievements({ achievements }: { achievements: Achievement[] }) {
   const [active, setActive] = useState<Achievement | null>(null);

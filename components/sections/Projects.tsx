@@ -19,7 +19,7 @@ const TYPE_VARIANT: Record<Project["type"], "video" | "live" | "repo"> = {
   REPO: "repo",
 };
 
-const INITIAL_COUNT = 3;
+const INITIAL_COUNT = 4;
 
 export function ProjectsGrid({ projects }: { projects: Project[] }) {
   const [active, setActive] = useState<Project | null>(null);
