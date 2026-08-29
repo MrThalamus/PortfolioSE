@@ -91,6 +91,57 @@ model GalleryImage {
   @@index([order])
 }
 
+enum InvolvementType {
+  JOB
+  CLUB
+  RESEARCH_LAB
+  VOLUNTEER
+  OTHER
+}
+
+// Where the person currently works or is engaged — a job, a club, a research
+// lab, volunteering. Distinct from BeyondAcademicsEntry (one-off activities)
+// since these are ongoing affiliations with an organization and a role.
+model Involvement {
+  id           String          @id @default(cuid())
+  organization String
+  role         String
+  type         InvolvementType @default(OTHER)
+  period       String
+  current      Boolean         @default(false)
+  description  String?
+  link         String?
+  imageUrl     String?
+  order        Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([order])
+}
+
+enum ResearchStatus {
+  ONGOING
+  SUBMITTED
+  PUBLISHED
+}
+
+model ResearchItem {
+  id          String         @id @default(cuid())
+  title       String
+  venue       String?
+  role        String?
+  year        Int
+  status      ResearchStatus @default(ONGOING)
+  description String?
+  link        String?
+  imageUrl    String?
+  order       Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([order])
+}
+
 model Profile {
   id          String   @id @default("profile")
   name        String

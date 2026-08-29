@@ -2,8 +2,10 @@ import { Nav } from "@/components/layout/Nav";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/components/sections/Hero";
 import { ProjectsGrid } from "@/components/sections/Projects";
+import { Research } from "@/components/sections/Research";
 import { Achievements } from "@/components/sections/Achievements";
 import { BeyondAcademics } from "@/components/sections/BeyondAcademics";
+import { Involvement } from "@/components/sections/Involvement";
 import { Photography } from "@/components/sections/Photography";
 import { Gallery } from "@/components/sections/Gallery";
 import { About } from "@/components/sections/About";
@@ -11,8 +13,10 @@ import { Contact } from "@/components/sections/Contact";
 import { Section } from "@/components/ui/Section";
 import {
   getProjects,
+  getResearchItems,
   getAchievements,
   getBeyondAcademicsEntries,
+  getInvolvements,
   getPhotos,
   getGalleryImages,
   getProfile,
@@ -22,12 +26,14 @@ import {
 export const revalidate = 60;
 
 export default async function Home() {
-  const [profile, projects, achievements, beyondAcademics, photos, galleryImages] =
+  const [profile, projects, researchItems, achievements, beyondAcademics, involvements, photos, galleryImages] =
     await Promise.all([
       getProfile(),
       getProjects(),
+      getResearchItems(),
       getAchievements(),
       getBeyondAcademicsEntries(),
+      getInvolvements(),
       getPhotos(),
       getGalleryImages(),
     ]);
@@ -60,8 +66,18 @@ export default async function Home() {
         </Section>
 
         <Section
-          id="achievements"
+          id="research"
           index="02"
+          eyebrow="Ongoing work"
+          title="Research"
+          className="border-t border-border-default"
+        >
+          <Research items={researchItems} />
+        </Section>
+
+        <Section
+          id="achievements"
+          index="03"
           eyebrow="Recognition"
           title="Achievements & Competitions"
           className="border-t border-border-default"
@@ -71,7 +87,7 @@ export default async function Home() {
 
         <Section
           id="beyond-academics"
-          index="03"
+          index="04"
           eyebrow="Outside coursework"
           title="Beyond Academics"
           className="border-t border-border-default"
@@ -80,8 +96,18 @@ export default async function Home() {
         </Section>
 
         <Section
+          id="involvement"
+          index="05"
+          eyebrow="Where I engage"
+          title="Involvement"
+          className="border-t border-border-default"
+        >
+          <Involvement involvements={involvements} />
+        </Section>
+
+        <Section
           id="photography"
-          index="04"
+          index="06"
           eyebrow="Hobby"
           title="Photography"
           className="border-t border-border-default"
@@ -91,7 +117,7 @@ export default async function Home() {
 
         <Section
           id="gallery"
-          index="05"
+          index="07"
           eyebrow="Moments"
           title="Gallery"
           className="border-t border-border-default"
@@ -101,7 +127,7 @@ export default async function Home() {
 
         <Section
           id="about"
-          index="06"
+          index="08"
           eyebrow="Background"
           title="About"
           className="border-t border-border-default"
@@ -111,7 +137,7 @@ export default async function Home() {
 
         <Section
           id="contact"
-          index="07"
+          index="09"
           eyebrow="Get in touch"
           title="Contact"
           className="border-t border-border-default"

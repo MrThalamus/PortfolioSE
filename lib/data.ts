@@ -27,6 +27,14 @@ export async function getGalleryImages() {
   return prisma.galleryImage.findMany({ orderBy: { order: "asc" } });
 }
 
+export async function getInvolvements() {
+  return prisma.involvement.findMany({ orderBy: { order: "asc" } });
+}
+
+export async function getResearchItems() {
+  return prisma.researchItem.findMany({ orderBy: { order: "asc" } });
+}
+
 export async function getProfile() {
   const profile = await prisma.profile.findUnique({ where: { id: "profile" } });
   return profile;

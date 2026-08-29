@@ -53,6 +53,34 @@ export const photoSchema = z.object({
 
 export const galleryImageSchema = photoSchema;
 
+export const involvementTypeEnum = z.enum(["JOB", "CLUB", "RESEARCH_LAB", "VOLUNTEER", "OTHER"]);
+
+export const involvementSchema = z.object({
+  organization: z.string().min(1, "Organization is required"),
+  role: z.string().min(1, "Role is required"),
+  type: involvementTypeEnum.default("OTHER"),
+  period: z.string().min(1, "Period is required"),
+  current: z.coerce.boolean().default(false),
+  description: z.string().optional().or(z.literal("")),
+  link: z.string().url().optional().or(z.literal("")),
+  imageUrl: imageRef().nullable(),
+  order: z.coerce.number().int().default(0),
+});
+
+export const researchStatusEnum = z.enum(["ONGOING", "SUBMITTED", "PUBLISHED"]);
+
+export const researchItemSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  venue: z.string().optional().or(z.literal("")),
+  role: z.string().optional().or(z.literal("")),
+  year: z.coerce.number().int().min(1900).max(3000),
+  status: researchStatusEnum.default("ONGOING"),
+  description: z.string().optional().or(z.literal("")),
+  link: z.string().url().optional().or(z.literal("")),
+  imageUrl: imageRef().nullable(),
+  order: z.coerce.number().int().default(0),
+});
+
 export const skillGroupSchema = z.object({
   category: z.string().min(1),
   items: z.array(z.string().min(1)),

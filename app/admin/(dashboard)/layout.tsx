@@ -9,8 +9,10 @@ export const dynamic = "force-dynamic";
 const NAV_ITEMS = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/projects", label: "Projects" },
+  { href: "/admin/research", label: "Research" },
   { href: "/admin/achievements", label: "Achievements" },
   { href: "/admin/beyond-academics", label: "Beyond Academics" },
+  { href: "/admin/involvement", label: "Involvement" },
   { href: "/admin/photography", label: "Photography" },
   { href: "/admin/gallery", label: "Gallery" },
   { href: "/admin/profile", label: "Profile" },
