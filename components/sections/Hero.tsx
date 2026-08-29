@@ -12,7 +12,7 @@ export function Hero({ profile }: { profile: Profile }) {
     <section id="top" className="relative overflow-hidden border-b border-border-default">
       <div className="bg-grid pointer-events-none absolute inset-0 -z-10 h-[600px]" />
       <Container className="grid gap-12 py-24 sm:py-32 lg:grid-cols-[1.1fr_1fr] lg:items-center">
-        <FadeIn>
+        <FadeIn className="min-w-0">
           <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:items-center sm:text-left">
             <HeroAvatar avatarUrl={profile.avatarUrl} name={profile.name} />
             <div>
@@ -60,7 +60,7 @@ export function Hero({ profile }: { profile: Profile }) {
           </div>
         </FadeIn>
 
-        <FadeIn delay={0.15}>
+        <FadeIn delay={0.15} className="min-w-0">
           <TerminalCard name={shortName} tagline={profile.tagline} email={profile.email} />
         </FadeIn>
       </Container>
