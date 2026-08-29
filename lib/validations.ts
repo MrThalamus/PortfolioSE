@@ -40,6 +40,7 @@ export const certificateSchema = z.object({
   issuingOrganization: z.string().min(1, "Issuing organization is required"),
   dateEarned: z.coerce.date({ message: "A valid date is required" }),
   credentialUrl: z.string().url().optional().or(z.literal("")),
+  imageUrl: imageRef().nullable(),
   order: z.coerce.number().int().default(0),
 });
 

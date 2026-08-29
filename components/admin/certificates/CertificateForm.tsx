@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef } from "react";
 import type { Certificate } from "@prisma/client";
 import { upsertCertificate, type CertificateFormState } from "@/app/admin/(dashboard)/certificates/actions";
 import { label, input, primaryButton, secondaryButton } from "@/components/admin/styles";
+import { ImageField } from "@/components/admin/ImageField";
 
 const initialState: CertificateFormState = {};
 
@@ -88,6 +89,16 @@ export function CertificateForm({
           <input id="order" name="order" type="number" defaultValue={v?.order ?? certificate?.order ?? 0} className={input} />
         </div>
       </div>
+
+      <ImageField
+        label="Certificate image / badge (optional)"
+        currentUrl={certificate?.imageUrl}
+        urlFieldName="imageUrl"
+        existingFieldName="existingImageUrl"
+        removeFieldName="removeImage"
+        defaultUrlValue={v?.imageUrl ?? ""}
+        pathPrefix="certificates"
+      />
 
       {state.error && <p className="font-mono text-sm text-red-500">{state.error}</p>}
 

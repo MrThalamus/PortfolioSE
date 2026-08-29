@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import type { Certificate } from "@prisma/client";
 import { CertificateForm } from "./CertificateForm";
 import { DeleteButton } from "@/components/admin/DeleteButton";
@@ -42,14 +43,21 @@ export function CertificateManager({ certificates }: { certificates: Certificate
               key={certificate.id}
               className="flex items-center justify-between rounded-lg border border-border-default bg-background-elevated p-4"
             >
-              <div>
-                <p className="font-medium">{certificate.name}</p>
-                <p className="font-mono text-xs text-foreground-muted">
-                  {certificate.issuingOrganization} ·{" "}
-                  {certificate.dateEarned.toLocaleDateString("en-US", { year: "numeric", month: "short" })} · order{" "}
-                  {certificate.order}
-                  {certificate.credentialUrl && " · verifiable"}
-                </p>
+              <div className="flex items-center gap-3">
+                {certificate.imageUrl && (
+                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-md border border-border-default">
+                    <Image src={certificate.imageUrl} alt="" fill sizes="40px" className="object-cover" />
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium">{certificate.name}</p>
+                  <p className="font-mono text-xs text-foreground-muted">
+                    {certificate.issuingOrganization} ·{" "}
+                    {certificate.dateEarned.toLocaleDateString("en-US", { year: "numeric", month: "short" })} · order{" "}
+                    {certificate.order}
+                    {certificate.credentialUrl && " · verifiable"}
+                  </p>
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 <button
