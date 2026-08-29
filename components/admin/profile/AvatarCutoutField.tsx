@@ -1,38 +1,24 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
+import { uploadFileToBlob } from "@/lib/blobUpload";
 import { label as labelClass, input } from "@/components/admin/styles";
 
-type Status = "idle" | "processing" | "error";
+type Status = "idle" | "processing" | "uploading" | "error";
 
 export function AvatarCutoutField({
   currentUrl,
   defaultUrlValue = "",
-  resetSignal,
 }: {
   currentUrl?: string | null;
   defaultUrlValue?: string;
-  resetSignal?: unknown;
 }) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const cutoutFileRef = useRef<File | null>(null);
   const [preview, setPreview] = useState<string | null>(currentUrl ?? null);
+  const [url, setUrl] = useState(defaultUrlValue);
   const [status, setStatus] = useState<Status>("idle");
   const [progress, setProgress] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-
-  // The browser clears a file input's selection on any form submission,
-  // success or failure — independent of whether this component re-renders.
-  // If a validation error on some *other* field brings the admin back here,
-  // silently re-apply the cutout we already processed so it isn't dropped.
-  useEffect(() => {
-    if (cutoutFileRef.current && fileInputRef.current && fileInputRef.current.files?.length === 0) {
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(cutoutFileRef.current);
-      fileInputRef.current.files = dataTransfer.files;
-    }
-  }, [resetSignal]);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -42,6 +28,7 @@ export function AvatarCutoutField({
     setError(null);
     setProgress("Loading background-removal model…");
 
+    let uploadFile = file;
     try {
       const { removeBackground } = await import("@imgly/background-removal");
       const cutoutBlob = await removeBackground(file, {
@@ -55,26 +42,25 @@ export function AvatarCutoutField({
           }
         },
       });
+      uploadFile = new File([cutoutBlob], "avatar-cutout.png", { type: "image/png" });
+      setPreview(URL.createObjectURL(uploadFile));
+    } catch {
+      setError("Couldn't remove the background automatically — uploading the original photo instead.");
+    }
 
-      const cutoutFile = new File([cutoutBlob], "avatar-cutout.png", { type: "image/png" });
-      cutoutFileRef.current = cutoutFile;
-
-      // Swap the file input's contents with the processed cutout so the
-      // existing form submission (and server-side upload handling) needs
-      // no changes at all — it just sees a different file.
-      const dataTransfer = new DataTransfer();
-      dataTransfer.items.add(cutoutFile);
-      if (fileInputRef.current) {
-        fileInputRef.current.files = dataTransfer.files;
-      }
-
-      setPreview(URL.createObjectURL(cutoutFile));
+    setStatus("uploading");
+    setProgress("Uploading…");
+    try {
+      const uploadedUrl = await uploadFileToBlob(uploadFile, "profile");
+      setUrl(uploadedUrl);
       setStatus("idle");
       setProgress("");
     } catch {
       setStatus("error");
-      setError("Couldn't remove the background automatically. You can still submit the original photo, or paste an image URL instead.");
+      setError("Upload failed. Try again, or paste an image URL instead.");
       setProgress("");
+    } finally {
+      e.target.value = "";
     }
   }
 
@@ -105,25 +91,23 @@ export function AvatarCutoutField({
 
       <div className="grid gap-3 sm:grid-cols-2">
         <input
-          ref={fileInputRef}
           type="file"
-          name="file"
           accept="image/*"
           onChange={handleFileChange}
-          disabled={status === "processing"}
+          disabled={status === "processing" || status === "uploading"}
           className={input}
         />
         <input
-          key={defaultUrlValue}
           type="text"
           name="avatarUrl"
-          defaultValue={defaultUrlValue}
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
           placeholder="or paste an image URL"
           className={input}
         />
       </div>
 
-      {status === "processing" && (
+      {(status === "processing" || status === "uploading") && (
         <p className="mt-1 font-mono text-xs text-accent">{progress}</p>
       )}
       {error && <p className="mt-1 font-mono text-xs text-red-500">{error}</p>}

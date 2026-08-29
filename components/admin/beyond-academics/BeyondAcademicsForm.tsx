@@ -83,6 +83,7 @@ export function BeyondAcademicsForm({
         existingFieldName="existingImageUrl"
         removeFieldName="removeImage"
         defaultUrlValue={v?.imageUrl ?? ""}
+        pathPrefix="beyond-academics"
       />
 
       {state.error && <p className="font-mono text-sm text-red-500">{state.error}</p>}

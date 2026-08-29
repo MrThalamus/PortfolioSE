@@ -17,8 +17,8 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
   // A failed submission clears every uncontrolled field in the form (a React
   // quirk, not specific to this app). The action echoes back what was typed
   // so each plain text field can restore it — keyed individually (rather than
-  // the whole form) so AvatarCutoutField and SkillsEditor, which hold their
-  // own state, don't get remounted and lose an in-progress cutout or edit.
+  // the whole form) so SkillsEditor, which holds its own state, doesn't get
+  // remounted and lose an in-progress edit.
   const v = state.values;
 
   return (
@@ -45,7 +45,7 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
         </div>
       </div>
 
-      <AvatarCutoutField currentUrl={profile?.avatarUrl} defaultUrlValue={v?.avatarUrl ?? ""} resetSignal={state} />
+      <AvatarCutoutField currentUrl={profile?.avatarUrl} defaultUrlValue={v?.avatarUrl ?? ""} />
 
       <div>
         <label className={label} htmlFor="tagline">Tagline</label>

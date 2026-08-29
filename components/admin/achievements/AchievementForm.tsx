@@ -70,6 +70,7 @@ export function AchievementForm({
         existingFieldName="existingImageUrl"
         removeFieldName="removeImage"
         defaultUrlValue={v?.imageUrl ?? ""}
+        pathPrefix="achievements"
       />
 
       {state.error && <p className="font-mono text-sm text-red-500">{state.error}</p>}

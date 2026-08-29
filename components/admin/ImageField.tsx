@@ -1,4 +1,8 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
+import { uploadFileToBlob } from "@/lib/blobUpload";
 import { label as labelClass, input } from "./styles";
 
 export function ImageField({
@@ -10,6 +14,7 @@ export function ImageField({
   helpText,
   round = false,
   defaultUrlValue = "",
+  pathPrefix,
 }: {
   label: string;
   currentUrl?: string | null;
@@ -19,7 +24,29 @@ export function ImageField({
   helpText?: string;
   round?: boolean;
   defaultUrlValue?: string;
+  pathPrefix: string;
 }) {
+  const [url, setUrl] = useState(defaultUrlValue);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+    try {
+      const uploadedUrl = await uploadFileToBlob(file, pathPrefix);
+      setUrl(uploadedUrl);
+    } catch {
+      setError("Upload failed. Try again, or paste an image URL instead.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
   return (
     <div>
       <label className={labelClass}>{label}</label>
@@ -40,15 +67,24 @@ export function ImageField({
       <input type="hidden" name={existingFieldName} value={currentUrl ?? ""} />
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <input type="file" name="file" accept="image/*" className={input} />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          disabled={uploading}
+          className={input}
+        />
         <input
           type="text"
           name={urlFieldName}
-          defaultValue={defaultUrlValue}
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
           placeholder="or paste an image URL"
           className={input}
         />
       </div>
+      {uploading && <p className="mt-1 font-mono text-xs text-accent">Uploading…</p>}
+      {error && <p className="mt-1 font-mono text-xs text-red-500">{error}</p>}
       {helpText && <p className="mt-1 font-mono text-xs text-foreground-muted">{helpText}</p>}
     </div>
   );
