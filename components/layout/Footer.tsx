@@ -3,7 +3,6 @@ export function Footer({ name }: { name: string }) {
     <footer className="border-t border-border-default py-8">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 px-6 text-center font-mono text-xs text-foreground-muted sm:flex-row sm:justify-between">
         <p>© {new Date().getFullYear()} {name}</p>
-        <p>Built with Next.js, Tailwind, and Prisma.</p>
       </div>
     </footer>
   );
