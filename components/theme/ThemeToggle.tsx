@@ -1,22 +1,9 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-
-function subscribe(callback: () => void) {
-  window.addEventListener("theme-change", callback);
-  return () => window.removeEventListener("theme-change", callback);
-}
-
-function getSnapshot() {
-  return document.documentElement.classList.contains("dark");
-}
-
-function getServerSnapshot() {
-  return true;
-}
+import { useIsDark } from "./useIsDark";
 
 export function ThemeToggle() {
-  const isDark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const isDark = useIsDark();
 
   function toggle() {
     const next = !isDark;

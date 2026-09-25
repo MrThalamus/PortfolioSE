@@ -12,6 +12,7 @@ import { Gallery } from "@/components/sections/Gallery";
 import { About } from "@/components/sections/About";
 import { Contact } from "@/components/sections/Contact";
 import { Section } from "@/components/ui/Section";
+import { Background3D } from "@/components/ui/Background3D";
 import {
   getProjects,
   getResearchItems,
@@ -60,6 +61,7 @@ export default async function Home() {
 
   return (
     <>
+      <Background3D />
       <Nav shortName={shortName} />
       <main>
         <Hero profile={profile} />
