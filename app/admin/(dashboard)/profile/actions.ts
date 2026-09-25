@@ -19,6 +19,7 @@ const FIELDS = [
   "linkedinUrl",
   "resumeUrl",
   "avatarUrl",
+  "chatbotNotes",
 ];
 
 export async function upsertProfile(
@@ -53,6 +54,7 @@ export async function upsertProfile(
     linkedinUrl: formData.get("linkedinUrl"),
     resumeUrl: formData.get("resumeUrl"),
     skills,
+    chatbotNotes: formData.get("chatbotNotes"),
   });
 
   if (uploadError) {
@@ -72,6 +74,7 @@ export async function upsertProfile(
     githubUrl: parsed.data.githubUrl || null,
     linkedinUrl: parsed.data.linkedinUrl || null,
     resumeUrl: parsed.data.resumeUrl || null,
+    chatbotNotes: parsed.data.chatbotNotes || null,
     skills: parsed.data.skills,
   };
 

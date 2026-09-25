@@ -142,6 +142,19 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
 
       <SkillsEditor initialSkills={skills} />
 
+      <div>
+        <label className={label} htmlFor="chatbotNotes">AI chatbot notes (private)</label>
+        <textarea
+          key={v?.chatbotNotes ?? ""}
+          id="chatbotNotes"
+          name="chatbotNotes"
+          defaultValue={v?.chatbotNotes ?? profile?.chatbotNotes ?? ""}
+          rows={4}
+          placeholder="Not shown on the page — only the AI assistant reads this. E.g. availability, roles you want, where you are based, whether you would relocate."
+          className={textarea}
+        />
+      </div>
+
       {state.error && <p className="font-mono text-sm text-red-500">{state.error}</p>}
       {state.success && <p className="font-mono text-sm text-emerald-500">Saved.</p>}
 

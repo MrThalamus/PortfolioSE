@@ -4,7 +4,8 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum ProjectType {
@@ -157,18 +158,29 @@ model ResearchItem {
 }
 
 model Profile {
-  id          String   @id @default("profile")
-  name        String
-  nickname    String?
-  tagline     String
-  heroIntro   String
-  bio         String
-  email       String
-  avatarUrl   String?
-  githubUrl   String?
-  linkedinUrl String?
-  resumeUrl   String?
-  skills      Json
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default("profile")
+  name         String
+  nickname     String?
+  tagline      String
+  heroIntro    String
+  bio          String
+  email        String
+  avatarUrl    String?
+  githubUrl    String?
+  linkedinUrl  String?
+  resumeUrl    String?
+  skills       Json
+  // Extra facts only the AI chatbot sees (availability, preferred roles,
+  // location, etc.) — things visitors ask about that aren't on the page.
+  chatbotNotes String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// Fixed-window request counter for the public /api/chat endpoint. `key` is a
+// SHA-256 hash of the visitor's IP, so no raw IPs are stored.
+model ChatRateLimit {
+  key         String   @id
+  count       Int      @default(0)
+  windowStart DateTime @default(now())
 }

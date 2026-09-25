@@ -107,6 +107,7 @@ export const profileSchema = z.object({
   linkedinUrl: z.string().url().optional().or(z.literal("")),
   resumeUrl: z.string().url().optional().or(z.literal("")),
   skills: z.array(skillGroupSchema).default([]),
+  chatbotNotes: z.string().max(5000).optional().or(z.literal("")),
 });
 
 export const loginSchema = z.object({
