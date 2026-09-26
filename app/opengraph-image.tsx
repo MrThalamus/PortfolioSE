@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getProfile } from "@/lib/data";
+import { siteUrl } from "@/lib/site";
 
 export const alt = "Portfolio preview";
 export const size = { width: 1200, height: 630 };
@@ -17,7 +18,7 @@ export default async function Image() {
   const profile = await getProfile().catch(() => null);
   const name = profile?.name ?? "Software Engineer Portfolio";
   const tagline = profile?.tagline ?? "Software Engineer — .NET / Backend Systems";
-  const host = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").host;
+  const host = new URL(siteUrl).host;
 
   return new ImageResponse(
     (

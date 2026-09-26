@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { InvolvementManager } from "@/components/admin/involvement/InvolvementManager";
 
 export default async function AdminInvolvementPage() {
-  const involvements = await prisma.involvement.findMany({ orderBy: { order: "asc" } });
+  const involvements = await prisma.involvement.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 
   return (
     <div>

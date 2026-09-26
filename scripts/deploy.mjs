@@ -1,4 +1,4 @@
-const { execSync } = require("child_process");
+import { execSync } from "node:child_process";
 
 const ALIAS = "mdsaikothossain.vercel.app";
 const URL_PATTERN = /https:\/\/mdsaikothossain-[a-z0-9]+-mr-thalamus\.vercel\.app/;

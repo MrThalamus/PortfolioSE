@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { PhotosManager } from "@/components/admin/photography/PhotosManager";
 
 export default async function AdminPhotographyPage() {
-  const photos = await prisma.photo.findMany({ orderBy: { order: "asc" } });
+  const photos = await prisma.photo.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 
   return (
     <div>

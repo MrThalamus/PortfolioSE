@@ -1,9 +1,28 @@
 import { z } from "zod";
+import { isAllowedImageHost } from "@/lib/imageHosts";
 
-// Accepts either an absolute URL (Vercel Blob, external host) or a root-relative
-// path like "/uploads/..." (the local-disk fallback used when no Blob token is set).
+// Accepts either an uploaded-image URL on an allowed host (see lib/imageHosts.ts)
+// or a root-relative path like "/uploads/..." (the local-disk fallback used when
+// no Blob token is set). Other hosts are rejected up front: next/image refuses
+// to render them, which would break the public page.
 const imageRef = (message = "Enter a valid image URL") =>
-  z.string().refine((val) => /^https?:\/\//.test(val) || val.startsWith("/"), { message });
+  z.string().superRefine((val, ctx) => {
+    // "//host/..." is protocol-relative (an external URL), not a local path.
+    if (val.startsWith("/") && !val.startsWith("//")) return;
+    let url: URL;
+    try {
+      url = new URL(val);
+    } catch {
+      ctx.addIssue({ code: "custom", message });
+      return;
+    }
+    if (url.protocol !== "https:" || !isAllowedImageHost(url.hostname)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Please upload the image instead of pasting a link from another website.",
+      });
+    }
+  });
 
 export const projectSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -18,7 +37,7 @@ export const projectSchema = z.object({
   videoUrl: z.string().url().optional().or(z.literal("")),
   liveUrl: z.string().url().optional().or(z.literal("")),
   repoUrl: z.string().url().optional().or(z.literal("")),
-  thumbnailUrl: z.string().url().optional().or(z.literal("")),
+  thumbnailUrl: imageRef().optional().or(z.literal("")),
   problem: z.string().optional().or(z.literal("")),
   approach: z.string().optional().or(z.literal("")),
   outcome: z.string().optional().or(z.literal("")),

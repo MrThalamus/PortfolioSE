@@ -60,106 +60,41 @@ export default async function Home() {
   const skills = (profile.skills as unknown as SkillGroup[]) ?? [];
   const shortName = profile.nickname || profile.name.split(" ")[0];
 
+  // Sections with no content are hidden (and dropped from the nav) rather than
+  // showing an empty state to visitors. Numbers are assigned after filtering so
+  // they stay sequential.
+  const sections = [
+    { id: "projects", eyebrow: "Selected work", title: "Projects", show: projects.length > 0, content: <ProjectsGrid projects={projects} /> },
+    { id: "research", eyebrow: "Ongoing work", title: "Research", show: researchItems.length > 0, content: <Research items={researchItems} /> },
+    { id: "achievements", eyebrow: "Recognition", title: "Milestones & Achievements", show: achievements.length > 0, content: <Achievements achievements={achievements} /> },
+    { id: "certificates", eyebrow: "Credentials", title: "Certificates", show: certificates.length > 0, content: <Certificates certificates={certificates} /> },
+    { id: "beyond-academics", eyebrow: "Outside coursework", title: "Beyond Academics", show: beyondAcademics.length > 0, content: <BeyondAcademics entries={beyondAcademics} /> },
+    { id: "involvement", eyebrow: "Where I engage", title: "Involvement", show: involvements.length > 0, content: <Involvement involvements={involvements} /> },
+    { id: "photography", eyebrow: "Hobby", title: "Photography", show: photos.length > 0, content: <Photography photos={photos} /> },
+    { id: "gallery", eyebrow: "Moments", title: "Gallery", show: galleryImages.length > 0, content: <Gallery images={galleryImages} /> },
+    { id: "about", eyebrow: "Background", title: "About", show: true, content: <About bio={profile.bio} skills={skills} /> },
+    { id: "contact", eyebrow: "Get in touch", title: "Contact", show: true, content: <Contact profile={profile} /> },
+  ].filter((section) => section.show);
+
   return (
     <>
       <Background3D />
-      <Nav shortName={shortName} />
+      <Nav shortName={shortName} visibleSections={sections.map((section) => section.id)} />
       <main>
         <Hero profile={profile} />
 
-        <Section id="projects" index="01" eyebrow="Selected work" title="Projects">
-          <ProjectsGrid projects={projects} />
-        </Section>
-
-        <Section
-          id="research"
-          index="02"
-          eyebrow="Ongoing work"
-          title="Research"
-          className="border-t border-border-default"
-        >
-          <Research items={researchItems} />
-        </Section>
-
-        <Section
-          id="achievements"
-          index="03"
-          eyebrow="Recognition"
-          title="Milestones & Achievements"
-          className="border-t border-border-default"
-        >
-          <Achievements achievements={achievements} />
-        </Section>
-
-        <Section
-          id="certificates"
-          index="04"
-          eyebrow="Credentials"
-          title="Certificates"
-          className="border-t border-border-default"
-        >
-          <Certificates certificates={certificates} />
-        </Section>
-
-        <Section
-          id="beyond-academics"
-          index="05"
-          eyebrow="Outside coursework"
-          title="Beyond Academics"
-          className="border-t border-border-default"
-        >
-          <BeyondAcademics entries={beyondAcademics} />
-        </Section>
-
-        <Section
-          id="involvement"
-          index="06"
-          eyebrow="Where I engage"
-          title="Involvement"
-          className="border-t border-border-default"
-        >
-          <Involvement involvements={involvements} />
-        </Section>
-
-        <Section
-          id="photography"
-          index="07"
-          eyebrow="Hobby"
-          title="Photography"
-          className="border-t border-border-default"
-        >
-          <Photography photos={photos} />
-        </Section>
-
-        <Section
-          id="gallery"
-          index="08"
-          eyebrow="Moments"
-          title="Gallery"
-          className="border-t border-border-default"
-        >
-          <Gallery images={galleryImages} />
-        </Section>
-
-        <Section
-          id="about"
-          index="09"
-          eyebrow="Background"
-          title="About"
-          className="border-t border-border-default"
-        >
-          <About bio={profile.bio} skills={skills} />
-        </Section>
-
-        <Section
-          id="contact"
-          index="10"
-          eyebrow="Get in touch"
-          title="Contact"
-          className="border-t border-border-default"
-        >
-          <Contact profile={profile} />
-        </Section>
+        {sections.map((section, i) => (
+          <Section
+            key={section.id}
+            id={section.id}
+            index={String(i + 1).padStart(2, "0")}
+            eyebrow={section.eyebrow}
+            title={section.title}
+            className={i > 0 ? "border-t border-border-default" : undefined}
+          >
+            {section.content}
+          </Section>
+        ))}
       </main>
       <Footer name={profile.name} />
       <ChatWidget name={shortName} />

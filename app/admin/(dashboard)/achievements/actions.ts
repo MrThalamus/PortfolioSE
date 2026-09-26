@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { closeGapAfterDelete, makeRoomForInsert, makeRoomForMove } from "@/lib/ordering";
 import { achievementSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
 import { extractFormValues } from "@/lib/formState";
@@ -14,6 +16,7 @@ export async function upsertAchievement(
   _prevState: AchievementFormState,
   formData: FormData
 ): Promise<AchievementFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const file = formData.get("file");
 
@@ -47,11 +50,18 @@ export async function upsertAchievement(
 
   const data = { ...parsed.data, description: parsed.data.description || null };
 
-  if (id) {
-    await prisma.achievement.update({ where: { id }, data });
-  } else {
-    await prisma.achievement.create({ data });
-  }
+  // Save at the requested position (0 = top), shifting the other items to
+  // make room — see lib/ordering.ts.
+  await prisma.$transaction(async (tx) => {
+    if (id) {
+      const current = await tx.achievement.findUniqueOrThrow({ where: { id }, select: { order: true } });
+      const order = await makeRoomForMove(tx, "Achievement", id, current.order, data.order);
+      await tx.achievement.update({ where: { id }, data: { ...data, order } });
+    } else {
+      const order = await makeRoomForInsert(tx, "Achievement", data.order);
+      await tx.achievement.create({ data: { ...data, order } });
+    }
+  });
 
   revalidatePath("/");
   revalidatePath("/admin/achievements");
@@ -59,7 +69,11 @@ export async function upsertAchievement(
 }
 
 export async function deleteAchievement(id: string) {
-  await prisma.achievement.delete({ where: { id } });
+  await requireAdmin();
+  await prisma.$transaction(async (tx) => {
+    const deleted = await tx.achievement.delete({ where: { id }, select: { order: true } });
+    await closeGapAfterDelete(tx, "Achievement", deleted.order);
+  });
   revalidatePath("/");
   revalidatePath("/admin/achievements");
 }

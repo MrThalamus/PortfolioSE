@@ -46,8 +46,8 @@ export function ProjectsGrid({ projects }: { projects: Project[] }) {
               onClick={() => setActive(project)}
               className="group flex h-full w-full flex-col overflow-hidden rounded-lg border border-border-default bg-background-elevated text-left transition-all hover:-translate-y-1 hover:border-accent/60"
             >
-              {project.thumbnailUrl && (
-                <div className="relative aspect-video w-full border-b border-border-default">
+              <div className="relative aspect-video w-full border-b border-border-default">
+                {project.thumbnailUrl ? (
                   <Image
                     src={project.thumbnailUrl}
                     alt=""
@@ -55,8 +55,18 @@ export function ProjectsGrid({ projects }: { projects: Project[] }) {
                     sizes="(min-width: 640px) 50vw, 100vw"
                     className="object-cover"
                   />
-                </div>
-              )}
+                ) : (
+                  // Default thumbnail for projects without a screenshot.
+                  // Replace public/images/project-placeholder.svg to change it.
+                  <Image
+                    src="/images/project-placeholder.svg"
+                    alt=""
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                )}
+              </div>
               <div className="flex flex-1 flex-col p-5">
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <h3 className="font-semibold tracking-tight group-hover:text-accent">

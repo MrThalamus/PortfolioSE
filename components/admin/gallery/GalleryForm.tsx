@@ -63,7 +63,7 @@ export function GalleryForm({
         <input
           id="file"
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/heic,image/heif,.heic,.heif"
           onChange={handleFileChange}
           disabled={uploading}
           className={input}
@@ -96,7 +96,7 @@ export function GalleryForm({
       </div>
 
       <div>
-        <label className={label} htmlFor="order">Order</label>
+        <label className={label} htmlFor="order">Position (0 = top)</label>
         <input id="order" name="order" type="number" defaultValue={v?.order ?? image?.order ?? 0} className={input} />
       </div>
 

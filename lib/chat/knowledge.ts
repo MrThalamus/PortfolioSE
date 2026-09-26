@@ -6,6 +6,8 @@ import {
   getCertificates,
   getBeyondAcademicsEntries,
   getInvolvements,
+  getPhotos,
+  getGalleryImages,
   type SkillGroup,
 } from "@/lib/data";
 
@@ -15,7 +17,7 @@ import {
 // deterministic (ordered by `order`, no timestamps) so it stays identical
 // between requests until the content itself changes.
 export async function buildKnowledgeBase(): Promise<{ name: string; text: string } | null> {
-  const [profile, projects, research, achievements, certificates, beyond, involvements] = await Promise.all([
+  const [profile, projects, research, achievements, certificates, beyond, involvements, photos, gallery] = await Promise.all([
     getProfile(),
     getProjects(),
     getResearchItems(),
@@ -23,6 +25,8 @@ export async function buildKnowledgeBase(): Promise<{ name: string; text: string
     getCertificates(),
     getBeyondAcademicsEntries(),
     getInvolvements(),
+    getPhotos(),
+    getGalleryImages(),
   ]);
 
   if (!profile) return null;
@@ -108,6 +112,34 @@ export async function buildKnowledgeBase(): Promise<{ name: string; text: string
     out.push("", "## Beyond academics");
     for (const b of beyond) {
       out.push(`- ${b.title}${b.role ? ` (${b.role})` : ""}, ${b.year}${b.description ? `: ${b.description}` : ""}`);
+    }
+  }
+
+  // The assistant only reads text, never the images themselves, so it gets
+  // each image's caption plus its alt text when that's a real description.
+  const describe = (img: { caption: string | null; altText: string }) => {
+    const alt = img.altText.trim();
+    const hasAlt = alt !== "" && alt.toUpperCase() !== "N/A";
+    return [img.caption?.trim(), hasAlt ? alt : null].filter(Boolean).join(" — ");
+  };
+
+  if (photos.length) {
+    out.push(
+      "",
+      `## Photography (${photos.length} photographs shown in the Photography section of this page)`,
+      "Titles only; the photographs themselves aren't described here."
+    );
+    for (const photo of photos) {
+      const text = describe(photo);
+      if (text) out.push(`- ${text}`);
+    }
+  }
+
+  if (gallery.length) {
+    out.push("", `## Gallery (${gallery.length} photos of moments, shown in the Gallery section of this page)`);
+    for (const image of gallery) {
+      const text = describe(image);
+      if (text) out.push(`- ${text}`);
     }
   }
 

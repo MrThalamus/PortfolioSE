@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { closeGapAfterDelete, makeRoomForInsert, makeRoomForMove } from "@/lib/ordering";
 import { involvementSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
 import { extractFormValues } from "@/lib/formState";
@@ -14,6 +16,7 @@ export async function upsertInvolvement(
   _prevState: InvolvementFormState,
   formData: FormData
 ): Promise<InvolvementFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const file = formData.get("file");
 
@@ -54,11 +57,18 @@ export async function upsertInvolvement(
     link: parsed.data.link || null,
   };
 
-  if (id) {
-    await prisma.involvement.update({ where: { id }, data });
-  } else {
-    await prisma.involvement.create({ data });
-  }
+  // Save at the requested position (0 = top), shifting the other items to
+  // make room — see lib/ordering.ts.
+  await prisma.$transaction(async (tx) => {
+    if (id) {
+      const current = await tx.involvement.findUniqueOrThrow({ where: { id }, select: { order: true } });
+      const order = await makeRoomForMove(tx, "Involvement", id, current.order, data.order);
+      await tx.involvement.update({ where: { id }, data: { ...data, order } });
+    } else {
+      const order = await makeRoomForInsert(tx, "Involvement", data.order);
+      await tx.involvement.create({ data: { ...data, order } });
+    }
+  });
 
   revalidatePath("/");
   revalidatePath("/admin/involvement");
@@ -66,7 +76,11 @@ export async function upsertInvolvement(
 }
 
 export async function deleteInvolvement(id: string) {
-  await prisma.involvement.delete({ where: { id } });
+  await requireAdmin();
+  await prisma.$transaction(async (tx) => {
+    const deleted = await tx.involvement.delete({ where: { id }, select: { order: true } });
+    await closeGapAfterDelete(tx, "Involvement", deleted.order);
+  });
   revalidatePath("/");
   revalidatePath("/admin/involvement");
 }

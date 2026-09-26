@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { closeGapAfterDelete, makeRoomForInsert, makeRoomForMove } from "@/lib/ordering";
 import { photoSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
 import { extractFormValues } from "@/lib/formState";
@@ -14,6 +16,7 @@ export async function upsertPhoto(
   _prevState: PhotoFormState,
   formData: FormData
 ): Promise<PhotoFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const file = formData.get("file");
   const urlInput = String(formData.get("url") ?? "");
@@ -46,11 +49,18 @@ export async function upsertPhoto(
 
   const data = { ...parsed.data, caption: parsed.data.caption || null };
 
-  if (id) {
-    await prisma.photo.update({ where: { id }, data });
-  } else {
-    await prisma.photo.create({ data });
-  }
+  // Save at the requested position (0 = top), shifting the other items to
+  // make room — see lib/ordering.ts.
+  await prisma.$transaction(async (tx) => {
+    if (id) {
+      const current = await tx.photo.findUniqueOrThrow({ where: { id }, select: { order: true } });
+      const order = await makeRoomForMove(tx, "Photo", id, current.order, data.order);
+      await tx.photo.update({ where: { id }, data: { ...data, order } });
+    } else {
+      const order = await makeRoomForInsert(tx, "Photo", data.order);
+      await tx.photo.create({ data: { ...data, order } });
+    }
+  });
 
   revalidatePath("/");
   revalidatePath("/admin/photography");
@@ -58,7 +68,11 @@ export async function upsertPhoto(
 }
 
 export async function deletePhoto(id: string) {
-  await prisma.photo.delete({ where: { id } });
+  await requireAdmin();
+  await prisma.$transaction(async (tx) => {
+    const deleted = await tx.photo.delete({ where: { id }, select: { order: true } });
+    await closeGapAfterDelete(tx, "Photo", deleted.order);
+  });
   revalidatePath("/");
   revalidatePath("/admin/photography");
 }

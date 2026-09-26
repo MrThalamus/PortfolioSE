@@ -85,7 +85,7 @@ export function ResearchForm({
           <input id="link" name="link" type="url" placeholder="https://…" defaultValue={v?.link ?? researchItem?.link ?? ""} className={input} />
         </div>
         <div>
-          <label className={label} htmlFor="order">Order</label>
+          <label className={label} htmlFor="order">Position (0 = top)</label>
           <input id="order" name="order" type="number" defaultValue={v?.order ?? researchItem?.order ?? 0} className={input} />
         </div>
       </div>

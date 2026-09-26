@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { closeGapAfterDelete, makeRoomForInsert, makeRoomForMove } from "@/lib/ordering";
 import { beyondAcademicsSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
 import { extractFormValues } from "@/lib/formState";
@@ -14,6 +16,7 @@ export async function upsertBeyondAcademics(
   _prevState: BeyondAcademicsFormState,
   formData: FormData
 ): Promise<BeyondAcademicsFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const file = formData.get("file");
 
@@ -51,11 +54,18 @@ export async function upsertBeyondAcademics(
     description: parsed.data.description || null,
   };
 
-  if (id) {
-    await prisma.beyondAcademicsEntry.update({ where: { id }, data });
-  } else {
-    await prisma.beyondAcademicsEntry.create({ data });
-  }
+  // Save at the requested position (0 = top), shifting the other items to
+  // make room — see lib/ordering.ts.
+  await prisma.$transaction(async (tx) => {
+    if (id) {
+      const current = await tx.beyondAcademicsEntry.findUniqueOrThrow({ where: { id }, select: { order: true } });
+      const order = await makeRoomForMove(tx, "BeyondAcademicsEntry", id, current.order, data.order);
+      await tx.beyondAcademicsEntry.update({ where: { id }, data: { ...data, order } });
+    } else {
+      const order = await makeRoomForInsert(tx, "BeyondAcademicsEntry", data.order);
+      await tx.beyondAcademicsEntry.create({ data: { ...data, order } });
+    }
+  });
 
   revalidatePath("/");
   revalidatePath("/admin/beyond-academics");
@@ -63,7 +73,11 @@ export async function upsertBeyondAcademics(
 }
 
 export async function deleteBeyondAcademics(id: string) {
-  await prisma.beyondAcademicsEntry.delete({ where: { id } });
+  await requireAdmin();
+  await prisma.$transaction(async (tx) => {
+    const deleted = await tx.beyondAcademicsEntry.delete({ where: { id }, select: { order: true } });
+    await closeGapAfterDelete(tx, "BeyondAcademicsEntry", deleted.order);
+  });
   revalidatePath("/");
   revalidatePath("/admin/beyond-academics");
 }

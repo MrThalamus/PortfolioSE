@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { profileSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
@@ -26,6 +27,7 @@ export async function upsertProfile(
   _prevState: ProfileFormState,
   formData: FormData
 ): Promise<ProfileFormState> {
+  await requireAdmin();
   let skills: unknown = [];
   try {
     skills = JSON.parse(String(formData.get("skillsJson") ?? "[]"));

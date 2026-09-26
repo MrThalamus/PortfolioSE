@@ -99,7 +99,7 @@ export function ProjectForm({
           </select>
         </div>
         <div>
-          <label className={label} htmlFor="order">Order</label>
+          <label className={label} htmlFor="order">Position (0 = top)</label>
           <input id="order" name="order" type="number" defaultValue={v?.order ?? project?.order ?? 0} className={input} />
         </div>
       </div>
@@ -121,6 +121,7 @@ export function ProjectForm({
 
       <ImageField
         label="Thumbnail (screenshot of the site/product)"
+        helpText="Shown on the project card. Leave empty to use the default image. Best at 16:9, e.g. 1280×720."
         currentUrl={project?.thumbnailUrl}
         urlFieldName="thumbnailUrl"
         existingFieldName="existingThumbnailUrl"

@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { closeGapAfterDelete, makeRoomForInsert, makeRoomForMove } from "@/lib/ordering";
 import { certificateSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
 import { extractFormValues } from "@/lib/formState";
@@ -14,6 +16,7 @@ export async function upsertCertificate(
   _prevState: CertificateFormState,
   formData: FormData
 ): Promise<CertificateFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const file = formData.get("file");
 
@@ -47,11 +50,18 @@ export async function upsertCertificate(
 
   const data = { ...parsed.data, credentialUrl: parsed.data.credentialUrl || null };
 
-  if (id) {
-    await prisma.certificate.update({ where: { id }, data });
-  } else {
-    await prisma.certificate.create({ data });
-  }
+  // Save at the requested position (0 = top), shifting the other items to
+  // make room — see lib/ordering.ts.
+  await prisma.$transaction(async (tx) => {
+    if (id) {
+      const current = await tx.certificate.findUniqueOrThrow({ where: { id }, select: { order: true } });
+      const order = await makeRoomForMove(tx, "Certificate", id, current.order, data.order);
+      await tx.certificate.update({ where: { id }, data: { ...data, order } });
+    } else {
+      const order = await makeRoomForInsert(tx, "Certificate", data.order);
+      await tx.certificate.create({ data: { ...data, order } });
+    }
+  });
 
   revalidatePath("/");
   revalidatePath("/admin/certificates");
@@ -59,7 +69,11 @@ export async function upsertCertificate(
 }
 
 export async function deleteCertificate(id: string) {
-  await prisma.certificate.delete({ where: { id } });
+  await requireAdmin();
+  await prisma.$transaction(async (tx) => {
+    const deleted = await tx.certificate.delete({ where: { id }, select: { order: true } });
+    await closeGapAfterDelete(tx, "Certificate", deleted.order);
+  });
   revalidatePath("/");
   revalidatePath("/admin/certificates");
 }

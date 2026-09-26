@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { IMAGE_HOST_PATTERNS } from "./lib/imageHosts";
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -7,16 +8,7 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
-    remotePatterns: [
-      // Vercel Blob storage (used for photo uploads from /admin/photography)
-      { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
-      // Placeholder seed images — safe to remove once real photos are uploaded
-      { protocol: "https", hostname: "images.unsplash.com" },
-      // Broad fallback so admin-entered image URLs from any host still render.
-      // This is a single-admin personal site — the trade-off favors flexibility
-      // over restricting the optimizer to a fixed host allowlist.
-      { protocol: "https", hostname: "**" },
-    ],
+    remotePatterns: IMAGE_HOST_PATTERNS.map((hostname) => ({ protocol: "https" as const, hostname })),
   },
 };
 

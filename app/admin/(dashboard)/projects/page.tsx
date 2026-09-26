@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { ProjectsManager } from "@/components/admin/projects/ProjectsManager";
 
 export default async function AdminProjectsPage() {
-  const projects = await prisma.project.findMany({ orderBy: { order: "asc" } });
+  const projects = await prisma.project.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 
   return (
     <div>

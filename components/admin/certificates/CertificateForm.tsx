@@ -85,7 +85,7 @@ export function CertificateForm({
           />
         </div>
         <div>
-          <label className={label} htmlFor="order">Order</label>
+          <label className={label} htmlFor="order">Position (0 = top)</label>
           <input id="order" name="order" type="number" defaultValue={v?.order ?? certificate?.order ?? 0} className={input} />
         </div>
       </div>

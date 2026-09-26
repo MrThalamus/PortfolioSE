@@ -177,9 +177,9 @@ model Profile {
   updatedAt    DateTime @updatedAt
 }
 
-// Fixed-window request counter for the public /api/chat endpoint. `key` is a
-// SHA-256 hash of the visitor's IP, so no raw IPs are stored.
-model ChatRateLimit {
+// Fixed-window counters for public endpoints (chatbot, contact form, admin
+// login). `key` is "<scope>:<sha256 of visitor IP>", so no raw IPs are stored.
+model RateLimit {
   key         String   @id
   count       Int      @default(0)
   windowStart DateTime @default(now())

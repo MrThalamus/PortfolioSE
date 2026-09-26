@@ -69,7 +69,7 @@ export function ImageField({
       <div className="grid gap-3 sm:grid-cols-2">
         <input
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/gif,image/avif,image/heic,image/heif,.heic,.heif"
           onChange={handleFileChange}
           disabled={uploading}
           className={input}

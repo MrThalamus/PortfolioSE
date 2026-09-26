@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const SESSION_COOKIE = "admin_session";
 const SESSION_DURATION_SECONDS = 60 * 60 * 8; // 8 hours
@@ -51,3 +52,12 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 export const SESSION_COOKIE_NAME = SESSION_COOKIE;
+
+// Server actions are public HTTP endpoints — the admin pages being behind
+// proxy.ts does NOT protect the actions they call. Every admin action must
+// call this first.
+export async function requireAdmin(): Promise<void> {
+  if (!(await isAuthenticated())) {
+    redirect("/admin/login");
+  }
+}

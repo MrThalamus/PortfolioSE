@@ -2,10 +2,17 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { put } from "@vercel/blob";
 
+// Raster images only — SVG is excluded because it can carry scripts.
+export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // matches serverActions.bodySizeLimit
+
+function safeFileName(name: string): string {
+  return name.replace(/[^a-zA-Z0-9.\-_]/g, "_").slice(-100) || "upload";
+}
+
 async function saveToLocalDisk(file: File, pathPrefix: string): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
-  const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
-  const filename = `${Date.now()}-${safeName}`;
+  const filename = `${Date.now()}-${safeFileName(file.name)}`;
   const dir = path.join(process.cwd(), "public", "uploads", pathPrefix);
   await mkdir(dir, { recursive: true });
   await writeFile(path.join(dir, filename), buffer);
@@ -28,8 +35,14 @@ export async function resolveImageUpload({
   if (remove) return { url: null };
 
   if (file && file.size > 0) {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      return { url: null, error: "Please upload a JPEG, PNG, WebP, GIF or AVIF image." };
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return { url: null, error: "That image is too large — the limit is 10 MB." };
+    }
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-      const blob = await put(`${pathPrefix}/${Date.now()}-${file.name}`, file, {
+      const blob = await put(`${pathPrefix}/${Date.now()}-${safeFileName(file.name)}`, file, {
         access: "public",
       });
       return { url: blob.url };

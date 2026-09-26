@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { AchievementsManager } from "@/components/admin/achievements/AchievementsManager";
 
 export default async function AdminAchievementsPage() {
-  const achievements = await prisma.achievement.findMany({ orderBy: { order: "asc" } });
+  const achievements = await prisma.achievement.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 
   return (
     <div>

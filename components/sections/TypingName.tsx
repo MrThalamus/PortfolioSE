@@ -7,8 +7,9 @@ const HEADING_CLASS = "font-mono text-4xl font-semibold tracking-tight sm:text-5
 export function TypingName({ name }: { name: string }) {
   // Starts empty on both server and client (so hydration matches), then
   // types the name forward once and stops — no looping, no deleting.
-  // Screen readers get the full name immediately via aria-label below,
-  // regardless of animation progress.
+  // The full name is in the <h1> as real (visually hidden) text from the first
+  // server render, so search engines and screen readers get it regardless of
+  // animation progress; the typed copy on top is purely visual.
   const [displayed, setDisplayed] = useState("");
   const [finished, setFinished] = useState(false);
 
@@ -38,7 +39,8 @@ export function TypingName({ name }: { name: string }) {
       <div className={`${HEADING_CLASS} invisible`} aria-hidden="true">
         {name}
       </div>
-      <h1 className={`${HEADING_CLASS} absolute inset-0`} aria-label={name}>
+      <h1 className={`${HEADING_CLASS} absolute inset-0`}>
+        <span className="sr-only">{name}</span>
         <span aria-hidden="true">
           {displayed}
           {!finished && <span className="typing-cursor" />}

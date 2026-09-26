@@ -12,7 +12,7 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "hash-password": "tsx scripts/hash-password.ts",
-    "deploy": "node scripts/deploy.js"
+    "deploy": "node scripts/deploy.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

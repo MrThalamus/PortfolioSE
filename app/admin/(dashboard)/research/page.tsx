@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { ResearchManager } from "@/components/admin/research/ResearchManager";
 
 export default async function AdminResearchPage() {
-  const researchItems = await prisma.researchItem.findMany({ orderBy: { order: "asc" } });
+  const researchItems = await prisma.researchItem.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 
   return (
     <div>

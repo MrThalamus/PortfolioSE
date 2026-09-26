@@ -1,7 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { closeGapAfterDelete, makeRoomForInsert, makeRoomForMove } from "@/lib/ordering";
 import { projectSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
 import { extractFormValues } from "@/lib/formState";
@@ -37,6 +40,7 @@ export async function upsertProject(
   _prevState: ProjectFormState,
   formData: FormData
 ): Promise<ProjectFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
 
   const { url: thumbnailUrl, error: uploadError } = await resolveImageUpload({
@@ -88,16 +92,27 @@ export async function upsertProject(
   };
 
   try {
-    if (id) {
-      await prisma.project.update({ where: { id }, data });
-    } else {
-      await prisma.project.create({ data });
+    // Save at the requested position (0 = top), shifting the other items to
+    // make room — see lib/ordering.ts.
+    await prisma.$transaction(async (tx) => {
+      if (id) {
+        const current = await tx.project.findUniqueOrThrow({ where: { id }, select: { order: true } });
+        const order = await makeRoomForMove(tx, "Project", id, current.order, data.order);
+        await tx.project.update({ where: { id }, data: { ...data, order } });
+      } else {
+        const order = await makeRoomForInsert(tx, "Project", data.order);
+        await tx.project.create({ data: { ...data, order } });
+      }
+    });
+  } catch (err) {
+    // P2002 = unique constraint violation, i.e. the slug is taken.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      return {
+        error: "A project with that slug already exists.",
+        values: extractFormValues(formData, FIELDS),
+      };
     }
-  } catch {
-    return {
-      error: "A project with that slug already exists.",
-      values: extractFormValues(formData, FIELDS),
-    };
+    throw err;
   }
 
   revalidatePath("/");
@@ -106,7 +121,11 @@ export async function upsertProject(
 }
 
 export async function deleteProject(id: string) {
-  await prisma.project.delete({ where: { id } });
+  await requireAdmin();
+  await prisma.$transaction(async (tx) => {
+    const deleted = await tx.project.delete({ where: { id }, select: { order: true } });
+    await closeGapAfterDelete(tx, "Project", deleted.order);
+  });
   revalidatePath("/");
   revalidatePath("/admin/projects");
 }

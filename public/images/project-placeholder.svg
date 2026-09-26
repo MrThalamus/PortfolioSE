@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- Default project thumbnail, shown when a project has no screenshot.
+       Replace this file to change the default for every project. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1413"/>
+      <stop offset="1" stop-color="#07090a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.45" r="0.55">
+      <stop offset="0" stop-color="#10b981" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#10b981" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#grid)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+
+  <!-- editor window -->
+  <g transform="translate(290 150)">
+    <rect width="700" height="420" rx="16" fill="#0f1715" stroke="#10b981" stroke-opacity="0.35" stroke-width="2"/>
+    <path d="M16 0H684A16 16 0 0 1 700 16V52H0V16A16 16 0 0 1 16 0Z" fill="#131d1a"/>
+    <circle cx="32" cy="26" r="7" fill="#ef4444" fill-opacity="0.75"/>
+    <circle cx="56" cy="26" r="7" fill="#eab308" fill-opacity="0.75"/>
+    <circle cx="80" cy="26" r="7" fill="#10b981" fill-opacity="0.75"/>
+
+    <!-- code lines -->
+    <g fill="#e7eaed" fill-opacity="0.12">
+      <rect x="44" y="96" width="180" height="12" rx="6"/>
+      <rect x="44" y="128" width="110" height="12" rx="6" fill="#10b981" fill-opacity="0.45"/>
+      <rect x="170" y="128" width="230" height="12" rx="6"/>
+      <rect x="76" y="160" width="260" height="12" rx="6"/>
+      <rect x="76" y="192" width="150" height="12" rx="6" fill="#10b981" fill-opacity="0.3"/>
+      <rect x="244" y="192" width="120" height="12" rx="6"/>
+      <rect x="44" y="224" width="90" height="12" rx="6"/>
+    </g>
+
+    <!-- </> mark -->
+    <g transform="translate(470 270)" fill="none" stroke="#10b981" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M-70 -40 -110 0 -70 40"/>
+      <path d="M70 -40 110 0 70 40"/>
+      <path d="M22 -58 -22 58"/>
+    </g>
+  </g>
+</svg>

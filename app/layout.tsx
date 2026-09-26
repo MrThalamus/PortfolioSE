@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { getProfile } from "@/lib/data";
+import { siteUrl } from "@/lib/site";
 
 const THEME_INIT_SCRIPT = `
 (function () {
@@ -26,8 +27,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
 export async function generateMetadata(): Promise<Metadata> {
   const profile = await getProfile().catch(() => null);
   const name = profile?.name ?? "Software Engineer Portfolio";
@@ -40,6 +39,9 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s — ${name}`,
     },
     description: profile?.heroIntro ?? tagline,
+    alternates: {
+      canonical: "/",
+    },
     openGraph: {
       title: `${name} — ${tagline}`,
       description: profile?.heroIntro ?? tagline,

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { contactMessageSchema } from "@/lib/validations";
 import { getMailTransporter, getMailSenderAddress, isMailConfigured } from "@/lib/mail";
 import { extractFormValues } from "@/lib/formState";
+import { headers } from "next/headers";
+import { consumeRateLimit, getClientIp, minutesUntil, rateLimitKey } from "@/lib/rateLimit";
 
 export type ContactFormState = {
   error?: string;
@@ -12,6 +14,7 @@ export type ContactFormState = {
 };
 
 const FIELDS = ["name", "email", "message"];
+const CONTACT_LIMIT = { max: 5, windowMs: 60 * 60 * 1000 }; // per visitor per hour
 
 export async function sendContactMessage(
   _prevState: ContactFormState,
@@ -54,13 +57,23 @@ export async function sendContactMessage(
     };
   }
 
+  const limit = await consumeRateLimit(rateLimitKey("contact", getClientIp(await headers())), CONTACT_LIMIT);
+  if (!limit.allowed) {
+    return {
+      error: `You've sent several messages already. Please try again in ${minutesUntil(limit.retryAfterMs)} minutes, or email directly.`,
+      values: extractFormValues(formData, FIELDS),
+    };
+  }
+
   const { name, email, message } = parsed.data;
 
   try {
     await getMailTransporter().sendMail({
       from: `"Portfolio Contact Form" <${getMailSenderAddress()}>`,
       to,
-      replyTo: `"${name}" <${email}>`,
+      // Object form lets nodemailer encode the name safely; a hand-built
+      // `"name" <email>` string could smuggle extra addresses in via the name.
+      replyTo: { name, address: email },
       subject: `New portfolio message from ${name}`,
       text: `${message}\n\n— ${name} (${email})`,
       html: `<p>${escapeHtml(message).replace(/\n/g, "<br>")}</p><p>— ${escapeHtml(name)} (${escapeHtml(email)})</p>`,

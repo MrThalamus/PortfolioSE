@@ -3,7 +3,7 @@ import { prisma } from "./prisma";
 export async function getProjects() {
   return prisma.project.findMany({
     where: { published: true },
-    orderBy: { order: "asc" },
+    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
   });
 }
 
@@ -12,31 +12,31 @@ export async function getProjectBySlug(slug: string) {
 }
 
 export async function getAchievements() {
-  return prisma.achievement.findMany({ orderBy: { order: "asc" } });
+  return prisma.achievement.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 }
 
 export async function getBeyondAcademicsEntries() {
-  return prisma.beyondAcademicsEntry.findMany({ orderBy: { order: "asc" } });
+  return prisma.beyondAcademicsEntry.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 }
 
 export async function getCertificates() {
-  return prisma.certificate.findMany({ orderBy: { order: "asc" } });
+  return prisma.certificate.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 }
 
 export async function getPhotos() {
-  return prisma.photo.findMany({ orderBy: { order: "asc" } });
+  return prisma.photo.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 }
 
 export async function getGalleryImages() {
-  return prisma.galleryImage.findMany({ orderBy: { order: "asc" } });
+  return prisma.galleryImage.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 }
 
 export async function getInvolvements() {
-  return prisma.involvement.findMany({ orderBy: { order: "asc" } });
+  return prisma.involvement.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 }
 
 export async function getResearchItems() {
-  return prisma.researchItem.findMany({ orderBy: { order: "asc" } });
+  return prisma.researchItem.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 }
 
 export async function getProfile() {

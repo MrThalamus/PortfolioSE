@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { BeyondAcademicsManager } from "@/components/admin/beyond-academics/BeyondAcademicsManager";
 
 export default async function AdminBeyondAcademicsPage() {
-  const entries = await prisma.beyondAcademicsEntry.findMany({ orderBy: { order: "asc" } });
+  const entries = await prisma.beyondAcademicsEntry.findMany({ orderBy: [{ order: "asc" }, { createdAt: "desc" }] });
 
   return (
     <div>

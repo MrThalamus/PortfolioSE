@@ -40,7 +40,19 @@ function isGroup(item: NavItem): item is { label: string; children: NavLink[] } 
   return "children" in item;
 }
 
-export function Nav({ shortName }: { shortName: string }) {
+// Keeps only links to sections that are actually rendered, and drops a group
+// entirely when none of its sections are.
+function visibleItems(visibleSections: string[]): NavItem[] {
+  const shown = (link: NavLink) => link.href === "#top" || visibleSections.includes(link.href.slice(1));
+  return NAV_ITEMS.flatMap((item): NavItem[] => {
+    if (!isGroup(item)) return shown(item) ? [item] : [];
+    const children = item.children.filter(shown);
+    return children.length ? [{ ...item, children }] : [];
+  });
+}
+
+export function Nav({ shortName, visibleSections }: { shortName: string; visibleSections: string[] }) {
+  const items = visibleItems(visibleSections);
   const [open, setOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [openMobileGroup, setOpenMobileGroup] = useState<string | null>(null);
@@ -65,7 +77,7 @@ export function Nav({ shortName }: { shortName: string }) {
         </Link>
 
         <ul className="hidden items-center gap-6 md:flex">
-          {NAV_ITEMS.map((item) =>
+          {items.map((item) =>
             isGroup(item) ? (
               <li key={item.label} className="relative">
                 <button
@@ -134,7 +146,7 @@ export function Nav({ shortName }: { shortName: string }) {
 
       {open && (
         <ul className="flex flex-col border-t border-border-default px-6 py-4 md:hidden">
-          {NAV_ITEMS.map((item) =>
+          {items.map((item) =>
             isGroup(item) ? (
               <li key={item.label}>
                 <button

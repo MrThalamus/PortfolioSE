@@ -1,6 +1,7 @@
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
+import { ALLOWED_IMAGE_TYPES } from "@/lib/upload";
 
 export async function POST(request: Request): Promise<NextResponse> {
   if (!(await isAuthenticated())) {
@@ -14,7 +15,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       body,
       request,
       onBeforeGenerateToken: async () => ({
-        allowedContentTypes: ["image/*", "application/pdf"],
+        // Raster images and PDFs (resume) only — no SVG, which can carry scripts.
+        allowedContentTypes: [...ALLOWED_IMAGE_TYPES, "application/pdf"],
+        maximumSizeInBytes: 25 * 1024 * 1024, // direct-to-Blob, so larger photos are fine
         addRandomSuffix: true,
       }),
       onUploadCompleted: async () => {},

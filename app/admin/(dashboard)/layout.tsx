@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { logout } from "../logout-action";
 import { MobileNav } from "@/components/admin/MobileNav";
+import { requireAdmin } from "@/lib/auth";
 
 // Admin pages read data directly through Prisma and must always reflect the
 // latest writes after a create/update/delete — never serve a cached RSC payload here.
@@ -19,7 +20,10 @@ const NAV_ITEMS = [
   { href: "/admin/profile", label: "Profile" },
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  // proxy.ts already redirects, but don't rely on it alone.
+  await requireAdmin();
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="mx-auto flex max-w-6xl">

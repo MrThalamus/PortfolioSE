@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { closeGapAfterDelete, makeRoomForInsert, makeRoomForMove } from "@/lib/ordering";
 import { galleryImageSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
 import { extractFormValues } from "@/lib/formState";
@@ -14,6 +16,7 @@ export async function upsertGalleryImage(
   _prevState: GalleryImageFormState,
   formData: FormData
 ): Promise<GalleryImageFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const file = formData.get("file");
   const urlInput = String(formData.get("url") ?? "");
@@ -46,11 +49,18 @@ export async function upsertGalleryImage(
 
   const data = { ...parsed.data, caption: parsed.data.caption || null };
 
-  if (id) {
-    await prisma.galleryImage.update({ where: { id }, data });
-  } else {
-    await prisma.galleryImage.create({ data });
-  }
+  // Save at the requested position (0 = top), shifting the other items to
+  // make room — see lib/ordering.ts.
+  await prisma.$transaction(async (tx) => {
+    if (id) {
+      const current = await tx.galleryImage.findUniqueOrThrow({ where: { id }, select: { order: true } });
+      const order = await makeRoomForMove(tx, "GalleryImage", id, current.order, data.order);
+      await tx.galleryImage.update({ where: { id }, data: { ...data, order } });
+    } else {
+      const order = await makeRoomForInsert(tx, "GalleryImage", data.order);
+      await tx.galleryImage.create({ data: { ...data, order } });
+    }
+  });
 
   revalidatePath("/");
   revalidatePath("/admin/gallery");
@@ -58,7 +68,11 @@ export async function upsertGalleryImage(
 }
 
 export async function deleteGalleryImage(id: string) {
-  await prisma.galleryImage.delete({ where: { id } });
+  await requireAdmin();
+  await prisma.$transaction(async (tx) => {
+    const deleted = await tx.galleryImage.delete({ where: { id }, select: { order: true } });
+    await closeGapAfterDelete(tx, "GalleryImage", deleted.order);
+  });
   revalidatePath("/");
   revalidatePath("/admin/gallery");
 }

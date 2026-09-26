@@ -1,7 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { closeGapAfterDelete, makeRoomForInsert, makeRoomForMove } from "@/lib/ordering";
 import { researchItemSchema } from "@/lib/validations";
 import { resolveImageUpload } from "@/lib/upload";
 import { extractFormValues } from "@/lib/formState";
@@ -14,6 +16,7 @@ export async function upsertResearchItem(
   _prevState: ResearchFormState,
   formData: FormData
 ): Promise<ResearchFormState> {
+  await requireAdmin();
   const id = String(formData.get("id") ?? "");
   const file = formData.get("file");
 
@@ -56,11 +59,18 @@ export async function upsertResearchItem(
     link: parsed.data.link || null,
   };
 
-  if (id) {
-    await prisma.researchItem.update({ where: { id }, data });
-  } else {
-    await prisma.researchItem.create({ data });
-  }
+  // Save at the requested position (0 = top), shifting the other items to
+  // make room — see lib/ordering.ts.
+  await prisma.$transaction(async (tx) => {
+    if (id) {
+      const current = await tx.researchItem.findUniqueOrThrow({ where: { id }, select: { order: true } });
+      const order = await makeRoomForMove(tx, "ResearchItem", id, current.order, data.order);
+      await tx.researchItem.update({ where: { id }, data: { ...data, order } });
+    } else {
+      const order = await makeRoomForInsert(tx, "ResearchItem", data.order);
+      await tx.researchItem.create({ data: { ...data, order } });
+    }
+  });
 
   revalidatePath("/");
   revalidatePath("/admin/research");
@@ -68,7 +78,11 @@ export async function upsertResearchItem(
 }
 
 export async function deleteResearchItem(id: string) {
-  await prisma.researchItem.delete({ where: { id } });
+  await requireAdmin();
+  await prisma.$transaction(async (tx) => {
+    const deleted = await tx.researchItem.delete({ where: { id }, select: { order: true } });
+    await closeGapAfterDelete(tx, "ResearchItem", deleted.order);
+  });
   revalidatePath("/");
   revalidatePath("/admin/research");
 }
